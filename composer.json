@@ -1,0 +1,28 @@
+{
+  "name": "philippgrashoff/cronforatk",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config":{
+    "platform":{
+      "php":"7.3"
+    }
+  },
+  "require":{
+    "philippgrashoff/traitsforatkdata": "master",
+    "atk4/data": "dev-develop"
+  },
+  "require-dev": {
+    "phpunit/phpunit": ">8",
+    "php-webdriver/webdriver": "^1.8.2"
+  },
+  "autoload":{
+    "psr-4":{
+      "cronforatk\\":"src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "cronforatk\\tests\\": "tests"
+    }
+  }
+}
