@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace cronforatk;
 
+use atk4\data\Exception;
 use atk4\data\Model;
 use atk4\ui\Dropdown;
 use DirectoryIterator;
@@ -34,14 +35,6 @@ class CronManager extends Model
     //format: path => namespace, e.g. 'src/data/cron' => 'YourProject\\Data\\Cron',
     public $cronFilesPath = [];
 
-    //files that should be ignored trying to load available Cronjobs
-    public $ignoreClassNames = [
-        __CLASS__
-    ];
-
-    //array in which info about all executed crons are stored
-    public $executedCrons = [];
-
     public $currentDate;
     public $currentWeekday;
     public $currentDay;
@@ -55,7 +48,7 @@ class CronManager extends Model
         $this->addFields(
             [
                 [
-                    'type',
+                    'name', //TODO: Rename to type
                     'type' => 'string',
                     'caption' => 'Diesen Cronjob ausführen',
                     'values' => $this->getAvailableCrons(),
@@ -144,6 +137,7 @@ class CronManager extends Model
                     'default' => 0,
                 ],
                 [
+                    //TODO: Rename to last_execution_info or move reporting to own model entirely
                     'last_executed',
                     'type' => 'array',
                     'system' => true,
@@ -173,21 +167,9 @@ class CronManager extends Model
                 if (!class_exists($className)) {
                     return;
                 }
-                $cronClass = new $className(is_array($model->get('defaults')) ? $model->get('defaults') : []);
+                $cronClass = new $className($this->persistence, is_array($model->get('defaults')) ? $model->get('defaults') : []);
                 $model->set('description', $cronClass->description);
             }
-        );
-
-        //execute yearly first, minutely last!
-        $this->setOrder(
-            [
-                ["interval = 'YEARLY' DESC"],
-                ["interval = 'MONTHLY' DESC"],
-                ["interval = 'WEEKLY' DESC"],
-                ["interval = 'DAILY' DESC"],
-                ["interval = 'HOURLY' DESC"],
-                ["interval = 'MINUTELY' DESC"],
-            ]
         );
     }
 
@@ -204,14 +186,17 @@ class CronManager extends Model
         $this->currentTime = $dateTime->format('H:i');
         $this->currentMinute = $dateTime->format('i');
 
-        foreach ($this as $cron) {
-            if (!$cron->get('is_active')) {
-                continue;
+        //execute yearly first, minutely last!
+        foreach($this->intervalSettings as $interval => $name) {
+            $records = clone $this; //clone here to keep currentDate etc.
+            $records->addCondition('interval', $interval);
+            $records->addCondition('is_active', 1);
+
+            foreach ($records as $record) {
+                $record->executeCronIfScheduleMatches();
             }
-            $cron->executeCronIfScheduleMatches();
         }
     }
-
 
     private function executeCronIfScheduleMatches(): void
     {
@@ -249,6 +234,7 @@ class CronManager extends Model
         ) {
             return;
         }
+
         if (
             $this->currentDate !== $this->get('date_yearly')->format('m-d')
             || $this->currentTime !== $this->get('time_yearly')->format('H:i')
@@ -308,46 +294,38 @@ class CronManager extends Model
         }
     }
 
-    /**
-     *
-     */
     public function executeCron(): bool
     {
+        $info = ['last_executed' => (new \DateTime())->format('d.m.Y H:i:s')];
         try {
-            $this->_exceptionIfThisNotLoaded();
+            if(!$this->loaded()) {
+                throw new Exception('$this needs to be loaded in ' . __FUNCTION__);
+            }
+
             $className = $this->get('name');
-            if (!class_exists($className)) {
-                return false;
-            }
 
-            $cronClass = new $className($this->app, is_array($this->get('defaults')) ? $this->get('defaults') : []);
-            $info = ['name' => $className];
-            $time_start = microtime(true);
-            ob_start();
+            $cronClass = new $className($this->persistence, is_array($this->get('defaults')) ? $this->get('defaults') : []);
+            $startOfCron = microtime(true);
+
             $cronClass->execute();
-            $info['execution_time'] = microtime(true) - $time_start;
-            $info['status'] = $cronClass->successful;
-            $info['last_executed'] = (new \DateTime())->format('d.m.Y H:i:s');
-            $info['output'] = ob_get_contents();
-            ob_end_clean();
 
-            if (!isset($this->executedCrons[$this->get('name')])) {
-                $this->executedCrons[$this->get('name')] = [$info];
-            } else {
-                $this->executedCrons[$this->get('name')][] = $info;
-            }
-
+            $info['status'] = 'success'; //TODO: Rename to success and make bool of it
+            $info['output'] = $cronClass->messages;
+            $info['execution_time'] = microtime(true) - $startOfCron;
             $this->set('last_executed', $info);
             $this->save();
 
-            return $cronClass->successful;
+            return true;
         } //catch any errors as more than one cron could be executed per minutely run
         catch (\Throwable $e) {
-            //TODO: ERROR Reporting
+            $info['status'] = 'failure';
+            $info['output'] = [$e->getMessage()];
+            $this->set('last_executed', $info);
+            $this->save();
+
             return false;
         }
     }
-
 
     /**
      * Loads all Cronjob Files and returns them as array:
@@ -368,18 +346,15 @@ class CronManager extends Model
                 }
 
                 $className = $namespace . '\\' . $file->getBasename('.php');
-                if (!class_exists($className)
-                    || (new ReflectionClass($className))->isAbstract()) {
+                if (
+                    !class_exists($className)
+                    || (new ReflectionClass($className))->isAbstract()
+                ) {
                     continue;
                 }
 
-                foreach ($this->ignoreClassNames as $name) {
-                    if (strpos($className, $name) !== false) {
-                        continue 2;
-                    }
-                }
-
-                $class = new $className($this->app);
+                //maybe reflection needed in case contructor is not compatible
+                $class = new $className($this->persistence);
                 if (!$class instanceof BaseCronJob) {
                     continue;
                 }

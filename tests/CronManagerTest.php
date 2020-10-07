@@ -4,49 +4,35 @@ declare(strict_types=1);
 
 namespace cronforatk\tests;
 
-use PMRAtk\tests\TestClasses\Persistence\ArrayWithApp;
+use traitsforatkdata\TestCase;
+use cronforatk\CronManager;
 use atk4\data\Persistence;
-use DateTime;
-use PMRAtk\Data\Cron\CronManager;
-use PMRAtk\Data\Cron\BaseCronJob;
-use PMRAtk\tests\phpunit\TestCase;
-use PMRAtk\tests\TestClasses\CronTestClasses\SampleCron;
-
+use cronforatk\tests\testclasses\SomeCronJob;
 
 class CronManagerTest extends TestCase
 {
 
+    protected $sqlitePersistenceModels = [
+        CronManager::class
+    ];
+
     public function testGetAvailableCrons()
     {
-        $cm = $this->_getRecord([]);
+        $persistence = $this->getSqliteTestPersistence();
+        $cm = $this->_getRecord($persistence, []);
         $res = $cm->getAvailableCrons();
-        self::assertTrue(array_key_exists(SampleCron::class, $res));
+        self::assertTrue(array_key_exists(SomeCronJob::class, $res));
         self::assertFalse(array_key_exists(CronManager::class, $res));
-    }
-
-    public function testExecuteCron()
-    {
-        $this->_addStandardEmailAccount();
-        $cm = $this->_getRecord(
-            [
-                'interval' => 'MINUTELY',
-                'interval_minutely' => 'EVERY_MINUTE',
-            ]
-        );
-        $cm->executeCron();
-        self::assertEquals(1, count($cm->executedCrons));
-        $cm->executeCron();
-        self::assertEquals(1, count($cm->executedCrons));
-        self::assertEquals(2, count($cm->executedCrons[SampleCron::class]));
     }
 
     public function testRunYearly()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime('2020-05-05');
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
         $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => '2020-05-05',
@@ -54,6 +40,7 @@ class CronManagerTest extends TestCase
             ]
         );
         $cm2 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => '2020-05-05',
@@ -61,20 +48,23 @@ class CronManagerTest extends TestCase
             ]
         );
         $cm3 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => '2020-05-05',
                 'time_yearly' => '03:02',
             ]
         );
-        $cm3 = $this->_getRecord(
+        $cm4 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => '2020-05-06',
                 'time_yearly' => '03:03',
             ]
         );
-        $cm3 = $this->_getRecord(
+        $cm5 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => '2020-06-05',
@@ -83,18 +73,30 @@ class CronManagerTest extends TestCase
         );
 
         //only one should be executed
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(1, count($cm->executedCrons[SampleCron::class]));
+
+        $cm1->reload();
+        $cm2->reload();
+        $cm3->reload();
+        $cm4->reload();
+        $cm5->reload();
+
+        self::assertIsArray($cm1->get('last_executed'));
+        self::assertNull($cm2->get('last_executed'));
+        self::assertNull($cm3->get('last_executed'));
+        self::assertNull($cm4->get('last_executed'));
+        self::assertNull($cm5->get('last_executed'));
     }
 
     public function testRunMonthly()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime('2020-05-05');
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
         $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
@@ -102,6 +104,7 @@ class CronManagerTest extends TestCase
             ]
         );
         $cm2 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
@@ -109,20 +112,23 @@ class CronManagerTest extends TestCase
             ]
         );
         $cm3 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
                 'time_monthly' => '03:04',
             ]
         );
-        $cm3 = $this->_getRecord(
+        $cm4 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 4,
                 'time_monthly' => '03:03',
             ]
         );
-        $cm3 = $this->_getRecord(
+        $cm5 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 6,
@@ -131,18 +137,31 @@ class CronManagerTest extends TestCase
         );
 
         //only one should be executed
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(1, count($cm->executedCrons[SampleCron::class]));
+
+        $cm1->reload();
+        $cm2->reload();
+        $cm3->reload();
+        $cm4->reload();
+        $cm5->reload();
+
+        self::assertIsArray($cm1->get('last_executed'));
+        self::assertNull($cm2->get('last_executed'));
+        self::assertNull($cm3->get('last_executed'));
+        self::assertNull($cm4->get('last_executed'));
+        self::assertNull($cm5->get('last_executed'));
     }
+
 
     public function testRunWeekly()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime('2020-05-05');
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
         $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => 2,
@@ -150,6 +169,7 @@ class CronManagerTest extends TestCase
             ]
         );
         $cm2 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => 2,
@@ -157,20 +177,23 @@ class CronManagerTest extends TestCase
             ]
         );
         $cm3 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => 2,
                 'time_weekly' => '03:04',
             ]
         );
-        $cm3 = $this->_getRecord(
+        $cm4 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => 1,
                 'time_weekly' => '03:03',
             ]
         );
-        $cm3 = $this->_getRecord(
+        $cm5 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => 3,
@@ -179,30 +202,45 @@ class CronManagerTest extends TestCase
         );
 
         //only one should be executed
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(1, count($cm->executedCrons[SampleCron::class]));
+
+        $cm1->reload();
+        $cm2->reload();
+        $cm3->reload();
+        $cm4->reload();
+        $cm5->reload();
+
+        self::assertIsArray($cm1->get('last_executed'));
+        self::assertNull($cm2->get('last_executed'));
+        self::assertNull($cm3->get('last_executed'));
+        self::assertNull($cm4->get('last_executed'));
+        self::assertNull($cm5->get('last_executed'));
     }
 
     public function testRunDaily()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime();
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime();
         $testTime->setTime(3, 3);
+
         //this one should be executed
         $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'DAILY',
                 'time_daily' => '03:03',
             ]
         );
         $cm2 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'DAILY',
                 'time_daily' => '03:02',
             ]
         );
         $cm3 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'DAILY',
                 'time_daily' => '03:04',
@@ -210,37 +248,40 @@ class CronManagerTest extends TestCase
         );
 
         //only one should be executed
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(1, count($cm->executedCrons[SampleCron::class]));
+
+        $cm1->reload();
+        $cm2->reload();
+        $cm3->reload();
+
+        self::assertIsArray($cm1->get('last_executed'));
+        self::assertNull($cm2->get('last_executed'));
+        self::assertNull($cm3->get('last_executed'));
     }
 
     public function testRunHourly()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime();
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime();
         $testTime->setTime(3, 3);
         //this one should be executed
-        $cm0 = $this->_getRecord(
-            [
-                'interval' => 'HOURLY',
-                'minute_hourly' => 3,
-            ]
-        );
-        //this one should be executed
         $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => 3,
             ]
         );
         $cm2 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => 2,
             ]
         );
         $cm3 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => 4,
@@ -248,276 +289,248 @@ class CronManagerTest extends TestCase
         );
 
 
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(2, count($cm->executedCrons[SampleCron::class]));
+
+        $cm1->reload();
+        $cm2->reload();
+        $cm3->reload();
+
+        self::assertIsArray($cm1->get('last_executed'));
+        self::assertNull($cm2->get('last_executed'));
+        self::assertNull($cm3->get('last_executed'));
     }
 
     public function testRunMinutely()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime();
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime();
         $testTime->setTime(3, 16);
         //this one should be executed
-        $cm0 = $this->_getRecord(
+        $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_MINUTE',
             ]
         );
-        $cm1 = $this->_getRecord(
+        $cm2 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
         $cm3 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
             ]
         );
 
-
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(1, count($cm->executedCrons[SampleCron::class]));
+
+        $cm1->reload();
+        $cm2->reload();
+        $cm3->reload();
+
+        self::assertIsArray($cm1->get('last_executed'));
+        self::assertNull($cm2->get('last_executed'));
+        self::assertNull($cm3->get('last_executed'));
     }
 
-    public function testSkipYearlyIfNoDateTime()
+    public function testSkipYearlyIfNoDateYearlySet()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime('2020-05-05');
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
         $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'YEARLY',
                 'time_yearly' => '03:03',
             ]
         );
 
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(0, count($cm->executedCrons));
+
+        $cm1->reload();
+        self::assertNull($cm1->get('last_executed'));
     }
 
-    public function testSkipMonthlyIfNoDateTime()
+    public function testSkipMonthlyIfNoTimeSet()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime('2020-05-05');
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
         $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
             ]
         );
 
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(0, count($cm->executedCrons));
+
+        $cm1->reload();
+        self::assertNull($cm1->get('last_executed'));
     }
 
     public function testLastExecutedSaved()
     {
-        $this->_addStandardEmailAccount();
+        $persistence = $this->getSqliteTestPersistence();
         //this one should be executed
         $cm0 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_MINUTE',
             ]
         );
 
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run();
 
         $cm0->reload();
-        self::assertEquals((new DateTime())->format('d.m.Y H:i:s'), $cm0->get('last_executed')['last_executed']);
+        self::assertEquals(
+            (new \DateTime())->format('d.m.Y H:i:s'),
+            $cm0->get('last_executed')['last_executed']
+        );
     }
 
     public function testRunMinutelyOffset()
     {
-        $this->_addStandardEmailAccount();
-        $testTime = new DateTime();
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime();
         $testTime->setTime(3, 18);
+
         //this one should be executed
         $cm1 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
                 'offset_minutely' => 3,
             ]
         );
-        //this one should be executed
-        $cm3 = $this->_getRecord(
+        //this one should be executed, too
+        $cm2 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
                 'offset_minutely' => 3,
             ]
         );
-        $cm2 = $this->_getRecord(
+        $cm3 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
         $cm4 = $this->_getRecord(
+            $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
             ]
         );
 
-
-        $cm = new CronManager(self::$app->db);
+        $cm = new CronManager($persistence);
         $cm->run($testTime);
-        self::assertEquals(2, count($cm->executedCrons[SampleCron::class]));
+
+        $cm1->reload();
+        $cm2->reload();
+        $cm3->reload();
+        $cm4->reload();
+
+        self::assertIsArray($cm1->get('last_executed'));
+        self::assertIsArray($cm2->get('last_executed'));
+        self::assertNull($cm3->get('last_executed'));
+        self::assertNull($cm4->get('last_executed'));
     }
 
     public function testDescriptionLoadedOnInsert()
     {
-        $this->_addStandardEmailAccount();
-        $cm = new CronManager(self::$app->db);
-        $cm->set('name', SampleCron::class);
+        $cm = new CronManager($this->getSqliteTestPersistence());
+        $cm->set('name', SomeCronJob::class);
         $cm->save();
-        self::assertEquals($cm->get('description'), 'SomeDescriptionExplainingWhatThisIsDoing');
-    }
-
-    public function testNonExistantClassName()
-    {
-        $cm = $this->_getRecord([]);
-        $desc = $cm->get('description');
-        $cm->set('name', 'LALADU');
-        $cm->save();
-        self::assertEquals($desc, $cm->get('description'));
+        self::assertEquals(
+            'SomeDescriptionExplainingWhatThisIsDoing',
+            $cm->get('description')
+        );
     }
 
     public function testNonActiveCronInRun()
     {
-        $cm = $this->_getRecord([]);
-        $cm->set('is_active', 0);
-        $cm->save();
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime('2020-05-05');
+        $testTime->setTime(3, 3);
+        //this one should be executed
+        $cm1 = $this->_getRecord(
+            $persistence,
+            [
+                'interval' => 'MONTHLY',
+                'day_monthly' => 5,
+                'time_monthly' => '03:03',
+            ]
+        );
 
-        $cm = new CronManager(self::$app->db);
-        $cm->run();
-        self::assertEquals(0, count($cm->executedCrons));
-    }
+        $cm1->set('is_active', 0);
+        $cm1->save();
+        $cm = new CronManager($persistence);
+        $cm->run($testTime);
+        $cm1->reload();
+        self::assertNull($cm1->get('last_executed'));
 
-    public function testNonExistantClassNameReturnsFalseOnExecuteCron()
-    {
-        $cm = $this->_getRecord([]);
-        $cm->set('name', 'LALALA');
-        self::assertFalse($cm->executeCron());
+        $cm1->set('is_active', 1);
+        $cm1->save();
+        $cm = new CronManager($persistence);
+        $cm->run($testTime);
+        $cm1->reload();
+        self::assertIsArray($cm1->get('last_executed'));
     }
 
     public function testNonExistantFolderIsSkipped()
     {
-        $this->_addStandardEmailAccount();
         $cm = new CronManager(
-            self::$app->db, [
-            'cronFilesPath' => [
-                'some/non/existant/path' => 'PMRAtk\\Data\\Cron',
-                'tests/TestClasses/CronTestClasses' => 'PMRAtk\\tests\\TestClasses\\CronTestClasses',
+            $this->getSqliteTestPersistence(),
+            [
+                'cronFilesPath' => [
+                    'some/non/existant/path' => 'PMRAtk\\Data\\Cron',
+                    '/tests/testclasses/' => 'cronforatk\\tests\\testclasses',
+                ]
             ]
-        ]
         );
-        self::assertEquals(4, count($cm->getAvailableCrons()));
+        self::assertEquals(2, count($cm->getAvailableCrons()));
     }
 
-    public function testSorting()
-    {
-        $this->_addStandardEmailAccount();
-        $this->_getRecord(
-            [
-                'interval' => 'DAILY',
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => 'MINUTELY',
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => 'YEARLY',
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => 'MONTHLY',
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => 'MONTHLY',
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => 'DAILY',
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => null,
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => 'YEARLY',
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => 'HOURLY',
-            ]
-        );
-        $this->_getRecord(
-            [
-                'interval' => 'WEEKLY',
-            ]
-        );
-
-        $orderArray = [
-            1 => 'YEARLY',
-            2 => 'YEARLY',
-            3 => 'MONTHLY',
-            4 => 'MONTHLY',
-            5 => 'WEEKLY',
-            6 => 'DAILY',
-            7 => 'DAILY',
-            8 => 'HOURLY',
-            9 => 'MINUTELY',
-            10 => null,
-        ];
-
-        $counter = 0;
-        foreach ((new CronManager(self::$app->db)) as $cm) {
-            $counter++;
-            self::assertEquals($orderArray[$counter], $cm->get('interval'));
-        }
-    }
-
-    private function _getRecord(array $set = []): CronManager
+    private function _getRecord(Persistence $persistence, array $set = []): CronManager
     {
         $cm = new CronManager(
-            self::$app->db,
+            $persistence,
             [
                 'cronFilesPath' =>
                     [
-                        'src/Data/Cron' => 'PMRAtk\\Data\\Cron',
-                        'tests/TestClasses/CronTestClasses' => 'PMRAtk\\tests\\TestClasses\\CronTestClasses',
+                        '/tests/testclasses/' => 'cronforatk\\tests\\testclasses',
                     ]
             ]
         );
-        $cm->set('name', SampleCron::class);
+
+        $cm->set('name', SomeCronJob::class);
         $cm->set('is_active', 1);
         $cm->setMulti($set);
+
         $cm->save();
+
         return $cm;
     }
 }

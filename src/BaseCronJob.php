@@ -6,6 +6,7 @@ namespace cronforatk;
 
 use atk4\core\DIContainerTrait;
 use atk4\data\Exception;
+use atk4\data\Persistence;
 
 
 /**
@@ -23,16 +24,21 @@ abstract class BaseCronJob
     //some description explaining what the cron is doing
     public $description = '';
 
-    //indicates if the cronjob was successful
-    public $successful = false;
+    public $persistence;
+
+    public $messages = [];
 
 
-    public function __construct(array $defaults = [])
+    public function __construct(Persistence $persistence, array $defaults = [])
     {
+        $this->persistence = $persistence;
         $this->setDefaults($defaults);
     }
 
-    public function execute()
+    /**
+     * Implementation in descendants should throw exception on error
+     */
+    public function execute(): void
     {
         //make sure execute exists, otherwise throw exception
         throw new Exception('execute needs to ne implemented in descendants of ' . __CLASS__);
