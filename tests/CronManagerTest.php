@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace cronforatk\tests;
 
+use atk4\data\Exception;
+use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
 use traitsforatkdata\TestCase;
 use cronforatk\CronManager;
 use atk4\data\Persistence;
@@ -82,7 +84,7 @@ class CronManagerTest extends TestCase
         $cm4->reload();
         $cm5->reload();
 
-        self::assertIsArray($cm1->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
         self::assertNull($cm2->get('last_executed'));
         self::assertNull($cm3->get('last_executed'));
         self::assertNull($cm4->get('last_executed'));
@@ -146,7 +148,7 @@ class CronManagerTest extends TestCase
         $cm4->reload();
         $cm5->reload();
 
-        self::assertIsArray($cm1->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
         self::assertNull($cm2->get('last_executed'));
         self::assertNull($cm3->get('last_executed'));
         self::assertNull($cm4->get('last_executed'));
@@ -211,7 +213,7 @@ class CronManagerTest extends TestCase
         $cm4->reload();
         $cm5->reload();
 
-        self::assertIsArray($cm1->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
         self::assertNull($cm2->get('last_executed'));
         self::assertNull($cm3->get('last_executed'));
         self::assertNull($cm4->get('last_executed'));
@@ -255,7 +257,7 @@ class CronManagerTest extends TestCase
         $cm2->reload();
         $cm3->reload();
 
-        self::assertIsArray($cm1->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
         self::assertNull($cm2->get('last_executed'));
         self::assertNull($cm3->get('last_executed'));
     }
@@ -296,7 +298,7 @@ class CronManagerTest extends TestCase
         $cm2->reload();
         $cm3->reload();
 
-        self::assertIsArray($cm1->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
         self::assertNull($cm2->get('last_executed'));
         self::assertNull($cm3->get('last_executed'));
     }
@@ -336,7 +338,7 @@ class CronManagerTest extends TestCase
         $cm2->reload();
         $cm3->reload();
 
-        self::assertIsArray($cm1->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
         self::assertNull($cm2->get('last_executed'));
         self::assertNull($cm3->get('last_executed'));
     }
@@ -400,8 +402,8 @@ class CronManagerTest extends TestCase
 
         $cm0->reload();
         self::assertEquals(
-            (new \DateTime())->format('d.m.Y H:i:s'),
-            $cm0->get('last_executed')['last_executed']
+            (new \DateTime())->format('d-m-Y H:i:s'),
+            $cm0->get('last_executed')->format('d-m-Y H:i:s')
         );
     }
 
@@ -452,8 +454,8 @@ class CronManagerTest extends TestCase
         $cm3->reload();
         $cm4->reload();
 
-        self::assertIsArray($cm1->get('last_executed'));
-        self::assertIsArray($cm2->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $cm2->get('last_executed'));
         self::assertNull($cm3->get('last_executed'));
         self::assertNull($cm4->get('last_executed'));
     }
@@ -496,7 +498,8 @@ class CronManagerTest extends TestCase
         $cm = new CronManager($persistence);
         $cm->run($testTime);
         $cm1->reload();
-        self::assertIsArray($cm1->get('last_executed'));
+
+        self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
     }
 
     public function testNonExistantFolderIsSkipped()
@@ -510,8 +513,60 @@ class CronManagerTest extends TestCase
                 ]
             ]
         );
-        self::assertEquals(2, count($cm->getAvailableCrons()));
+        self::assertEquals(3, count($cm->getAvailableCrons()));
     }
+
+    public function testExceptionInExecuteDoesNotStopExecutionOfOthers() {
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime('2020-05-05');
+        $testTime->setTime(3, 3);
+
+        $cm1 = $this->_getRecord(
+            $persistence,
+            [
+                'interval' => 'YEARLY',
+                'date_yearly' => '2020-05-05',
+                'time_yearly' => '03:03',
+            ]
+        );
+        $cm1->set('name', SomeCronJobWithExceptionInExecute::class);
+        $cm1->save();
+
+        $cm2 = $this->_getRecord(
+            $persistence,
+            [
+                'interval' => 'DAILY',
+                'time_daily' => '03:03',
+            ]
+        );
+
+
+        $cm = new CronManager($persistence);
+        $cm->run($testTime);
+
+        $cm1->reload();
+        $cm2->reload();
+
+        self::assertInstanceOf(\DateTime::class, $cm2->get('last_executed'));
+        self::assertEquals(
+            true,
+            $cm2->get('last_execution_success')
+        );
+        self::assertInstanceOf(\DateTime::class, $cm1->get('last_executed'));
+        self::assertEquals(
+            false,
+            $cm1->get('last_execution_success')
+        );
+    }
+
+    public function testExceptionExecuteCronThisNotLoaded() {
+        $persitence = $this->getSqliteTestPersistence();
+        $cr = new CronManager($persitence);
+        self::assertFalse(
+            $cr->executeCron()
+        );
+    }
+
 
     private function _getRecord(Persistence $persistence, array $set = []): CronManager
     {

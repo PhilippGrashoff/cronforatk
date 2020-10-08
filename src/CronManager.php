@@ -137,11 +137,25 @@ class CronManager extends Model
                     'default' => 0,
                 ],
                 [
-                    //TODO: Rename to last_execution_info or move reporting to own model entirely
                     'last_executed',
+                    'type' => 'datetime',
+                    'system' => true
+                ],
+                [
+                    'last_execution_success',
+                    'type' => 'boolean',
+                    'system' => true
+                ],
+                [
+                    'last_execution_duration',
+                    'type' => 'integer',
+                    'system' => true
+                ],
+                [
+                    'last_execution_output',
                     'type' => 'array',
-                    'system' => true,
-                    'serialize' => 'json'
+                    'serialize' => 'serialize',
+                    'system' => true
                 ],
             ]
         );
@@ -164,9 +178,7 @@ class CronManager extends Model
                     return;
                 }
                 $className = $model->get('name');
-                if (!class_exists($className)) {
-                    return;
-                }
+
                 $cronClass = new $className($this->persistence, is_array($model->get('defaults')) ? $model->get('defaults') : []);
                 $model->set('description', $cronClass->description);
             }
@@ -294,13 +306,16 @@ class CronManager extends Model
         }
     }
 
+    //TODO: Make protected? 
     public function executeCron(): bool
     {
-        $info = ['last_executed' => (new \DateTime())->format('d.m.Y H:i:s')];
         try {
             if(!$this->loaded()) {
                 throw new Exception('$this needs to be loaded in ' . __FUNCTION__);
             }
+
+            $this->set('last_executed', new \DateTime());
+            $this->save();
 
             $className = $this->get('name');
 
@@ -308,19 +323,16 @@ class CronManager extends Model
             $startOfCron = microtime(true);
 
             $cronClass->execute();
-
-            $info['status'] = 'success'; //TODO: Rename to success and make bool of it
-            $info['output'] = $cronClass->messages;
-            $info['execution_time'] = microtime(true) - $startOfCron;
-            $this->set('last_executed', $info);
+            $this->set('last_execution_duration', microtime(true) - $startOfCron);
+            $this->set('last_execution_success', true);
+            $this->set('last_execution_output', $cronClass->messages);
             $this->save();
 
             return true;
         } //catch any errors as more than one cron could be executed per minutely run
         catch (\Throwable $e) {
-            $info['status'] = 'failure';
-            $info['output'] = [$e->getMessage()];
-            $this->set('last_executed', $info);
+            $this->set('last_execution_success', false);
+            $this->set('last_execution_output', [$e->getMessage()]);
             $this->save();
 
             return false;
@@ -349,15 +361,14 @@ class CronManager extends Model
                 if (
                     !class_exists($className)
                     || (new ReflectionClass($className))->isAbstract()
+                    || !(new ReflectionClass($className))->isSubclassOf(BaseCronJob::class)
                 ) {
                     continue;
                 }
 
                 //maybe reflection needed in case contructor is not compatible
                 $class = new $className($this->persistence);
-                if (!$class instanceof BaseCronJob) {
-                    continue;
-                }
+
                 $res[get_class($class)] = $class->getName();
             }
         }
