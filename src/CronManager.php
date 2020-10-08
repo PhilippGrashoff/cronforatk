@@ -179,7 +179,10 @@ class CronManager extends Model
                 }
                 $className = $model->get('name');
 
-                $cronClass = new $className($this->persistence, is_array($model->get('defaults')) ? $model->get('defaults') : []);
+                $cronClass = new $className(
+                    $this->persistence,
+                    is_array($model->get('defaults')) ? $model->get('defaults') : []
+                );
                 $model->set('description', $cronClass->description);
             }
         );
@@ -199,7 +202,7 @@ class CronManager extends Model
         $this->currentMinute = $dateTime->format('i');
 
         //execute yearly first, minutely last!
-        foreach($this->intervalSettings as $interval => $name) {
+        foreach ($this->intervalSettings as $interval => $name) {
             $records = clone $this; //clone here to keep currentDate etc.
             $records->addCondition('interval', $interval);
             $records->addCondition('is_active', 1);
@@ -310,7 +313,7 @@ class CronManager extends Model
     public function executeCron(): bool
     {
         try {
-            if(!$this->loaded()) {
+            if (!$this->loaded()) {
                 throw new Exception('$this needs to be loaded in ' . __FUNCTION__);
             }
 
@@ -319,14 +322,19 @@ class CronManager extends Model
 
             $className = $this->get('name');
 
-            $cronClass = new $className($this->persistence, is_array($this->get('defaults')) ? $this->get('defaults') : []);
+            $cronJob = new $className(
+                $this->persistence,
+                is_array($this->get('defaults')) ? $this->get('defaults') : []
+            );
             $startOfCron = microtime(true);
 
-            $cronClass->execute();
+            $cronJob->execute();
             $this->set('last_execution_duration', microtime(true) - $startOfCron);
             $this->set('last_execution_success', true);
-            $this->set('last_execution_output', $cronClass->messages);
+            $this->set('last_execution_output', $cronJob->messages);
             $this->save();
+
+            $this->reportSuccess($cronJob);
 
             return true;
         } //catch any errors as more than one cron could be executed per minutely run
@@ -335,8 +343,17 @@ class CronManager extends Model
             $this->set('last_execution_output', [$e->getMessage()]);
             $this->save();
 
+            $this->reportFailure($e);
             return false;
         }
+    }
+
+    protected function reportSuccess(BaseCronJob $cronJob)
+    {
+    }
+
+    protected function reportFailure(\Throwable $e)
+    {
     }
 
     /**
