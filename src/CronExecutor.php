@@ -11,7 +11,7 @@ use DirectoryIterator;
 use ReflectionClass;
 
 
-class CronManager extends Model
+class CronExecutor extends Model
 {
 
     public $table = 'cron';

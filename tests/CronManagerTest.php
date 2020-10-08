@@ -7,7 +7,7 @@ namespace cronforatk\tests;
 use atk4\data\Exception;
 use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
 use traitsforatkdata\TestCase;
-use cronforatk\CronManager;
+use cronforatk\CronExecutor;
 use atk4\data\Persistence;
 use cronforatk\tests\testclasses\SomeCronJob;
 
@@ -15,7 +15,7 @@ class CronManagerTest extends TestCase
 {
 
     protected $sqlitePersistenceModels = [
-        CronManager::class
+        CronExecutor::class
     ];
 
     public function testGetAvailableCrons()
@@ -24,7 +24,7 @@ class CronManagerTest extends TestCase
         $cm = $this->_getRecord($persistence, []);
         $res = $cm->getAvailableCrons();
         self::assertTrue(array_key_exists(SomeCronJob::class, $res));
-        self::assertFalse(array_key_exists(CronManager::class, $res));
+        self::assertFalse(array_key_exists(CronExecutor::class, $res));
     }
 
     public function testRunYearly()
@@ -75,7 +75,7 @@ class CronManagerTest extends TestCase
         );
 
         //only one should be executed
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -139,7 +139,7 @@ class CronManagerTest extends TestCase
         );
 
         //only one should be executed
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -204,7 +204,7 @@ class CronManagerTest extends TestCase
         );
 
         //only one should be executed
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -250,7 +250,7 @@ class CronManagerTest extends TestCase
         );
 
         //only one should be executed
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -291,7 +291,7 @@ class CronManagerTest extends TestCase
         );
 
 
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -331,7 +331,7 @@ class CronManagerTest extends TestCase
             ]
         );
 
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -357,7 +357,7 @@ class CronManagerTest extends TestCase
             ]
         );
 
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -378,7 +378,7 @@ class CronManagerTest extends TestCase
             ]
         );
 
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -397,7 +397,7 @@ class CronManagerTest extends TestCase
             ]
         );
 
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run();
 
         $cm0->reload();
@@ -446,7 +446,7 @@ class CronManagerTest extends TestCase
             ]
         );
 
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -462,7 +462,7 @@ class CronManagerTest extends TestCase
 
     public function testDescriptionLoadedOnInsert()
     {
-        $cm = new CronManager($this->getSqliteTestPersistence());
+        $cm = new CronExecutor($this->getSqliteTestPersistence());
         $cm->set('name', SomeCronJob::class);
         $cm->save();
         self::assertEquals(
@@ -488,14 +488,14 @@ class CronManagerTest extends TestCase
 
         $cm1->set('is_active', 0);
         $cm1->save();
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
         $cm1->reload();
         self::assertNull($cm1->get('last_executed'));
 
         $cm1->set('is_active', 1);
         $cm1->save();
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
         $cm1->reload();
 
@@ -504,7 +504,7 @@ class CronManagerTest extends TestCase
 
     public function testNonExistantFolderIsSkipped()
     {
-        $cm = new CronManager(
+        $cm = new CronExecutor(
             $this->getSqliteTestPersistence(),
             [
                 'cronFilesPath' => [
@@ -541,7 +541,7 @@ class CronManagerTest extends TestCase
         );
 
 
-        $cm = new CronManager($persistence);
+        $cm = new CronExecutor($persistence);
         $cm->run($testTime);
 
         $cm1->reload();
@@ -561,16 +561,16 @@ class CronManagerTest extends TestCase
 
     public function testExceptionExecuteCronThisNotLoaded() {
         $persitence = $this->getSqliteTestPersistence();
-        $cr = new CronManager($persitence);
+        $cr = new CronExecutor($persitence);
         self::assertFalse(
             $cr->executeCron()
         );
     }
 
 
-    private function _getRecord(Persistence $persistence, array $set = []): CronManager
+    private function _getRecord(Persistence $persistence, array $set = []): CronExecutor
     {
-        $cm = new CronManager(
+        $cm = new CronExecutor(
             $persistence,
             [
                 'cronFilesPath' =>
