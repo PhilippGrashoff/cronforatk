@@ -11,7 +11,7 @@ use cronforatk\CronExecutor;
 use atk4\data\Persistence;
 use cronforatk\tests\testclasses\SomeCronJob;
 
-class CronManagerTest extends TestCase
+class CronExecutorTest extends TestCase
 {
 
     protected $sqlitePersistenceModels = [
