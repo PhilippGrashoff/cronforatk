@@ -148,7 +148,7 @@ class CronExecutor extends Model
                 ],
                 [
                     'last_execution_duration',
-                    'type' => 'integer',
+                    'type' => 'float',
                     'system' => true
                 ],
                 [

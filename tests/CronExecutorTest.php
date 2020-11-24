@@ -402,7 +402,7 @@ class CronExecutorTest extends TestCase
 
         $cm0->reload();
         self::assertEquals(
-            (new \DateTime())->format('d-m-Y H:i:s'),
+            (new \DateTime())->modify('-1 Second')->format('d-m-Y H:i:s'),
             $cm0->get('last_executed')->format('d-m-Y H:i:s')
         );
     }
@@ -556,6 +556,32 @@ class CronExecutorTest extends TestCase
         self::assertEquals(
             false,
             $cm1->get('last_execution_success')
+        );
+    }
+
+    public function testDurationIsMonitored() {
+        $persistence = $this->getSqliteTestPersistence();
+        $testTime = new \DateTime('2020-05-05');
+        $testTime->setTime(3, 3);
+
+        $cm1 = $this->_getRecord(
+            $persistence,
+            [
+                'interval' => 'YEARLY',
+                'date_yearly' => '2020-05-05',
+                'time_yearly' => '03:03',
+            ]
+        );
+
+        $cm = new CronExecutor($persistence);
+        $cm->run($testTime);
+
+        $cm1->reload();
+
+        self::assertEqualsWithDelta(
+            1.0,
+            $cm1->get('last_execution_duration'),
+            0.05
         );
     }
 
