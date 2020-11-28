@@ -463,7 +463,7 @@ class CronExecutorTest extends TestCase
     public function testDescriptionLoadedOnInsert()
     {
         $cm = new CronExecutor($this->getSqliteTestPersistence());
-        $cm->set('name', SomeCronJob::class);
+        $cm->set('type', SomeCronJob::class);
         $cm->save();
         self::assertEquals(
             'SomeDescriptionExplainingWhatThisIsDoing',
@@ -529,7 +529,7 @@ class CronExecutorTest extends TestCase
                 'time_yearly' => '03:03',
             ]
         );
-        $cm1->set('name', SomeCronJobWithExceptionInExecute::class);
+        $cm1->set('type', SomeCronJobWithExceptionInExecute::class);
         $cm1->save();
 
         $cm2 = $this->_getRecord(
@@ -606,7 +606,7 @@ class CronExecutorTest extends TestCase
             ]
         );
 
-        $cm->set('name', SomeCronJob::class);
+        $cm->set('type', SomeCronJob::class);
         $cm->set('is_active', 1);
         $cm->setMulti($set);
 

@@ -48,11 +48,16 @@ class CronExecutor extends Model
         $this->addFields(
             [
                 [
-                    'name', //TODO: Rename to type
+                    'type',
                     'type' => 'string',
                     'caption' => 'Diesen Cronjob ausführen',
                     'values' => $this->getAvailableCrons(),
                     'ui' => ['form' => [Dropdown::class]]
+                ],
+                [
+                    'name',
+                    'type' => 'string',
+                    'caption' => 'Bezeichung'
                 ],
                 [
                     'description',
@@ -174,15 +179,16 @@ class CronExecutor extends Model
         $this->onHook(
             Model::HOOK_BEFORE_SAVE,
             function (self $model, $isUpdate) {
-                if (!$model->isDirty('name')) {
+                if (!$model->isDirty('type')) {
                     return;
                 }
-                $className = $model->get('name');
+                $className = $model->get('type');
 
                 $cronClass = new $className(
                     $this->persistence,
                     is_array($model->get('defaults')) ? $model->get('defaults') : []
                 );
+                $model->set('name', $cronClass->name);
                 $model->set('description', $cronClass->description);
             }
         );
@@ -202,7 +208,7 @@ class CronExecutor extends Model
         $this->currentMinute = $dateTime->format('i');
 
         //execute yearly first, minutely last!
-        foreach ($this->intervalSettings as $interval => $name) {
+        foreach ($this->intervalSettings as $interval => $type) {
             $records = clone $this; //clone here to keep currentDate etc.
             $records->addCondition('interval', $interval);
             $records->addCondition('is_active', 1);
@@ -320,7 +326,7 @@ class CronExecutor extends Model
             $this->set('last_executed', new \DateTime());
             $this->save();
 
-            $className = $this->get('name');
+            $className = $this->get('type');
 
             $cronJob = new $className(
                 $this->persistence,
