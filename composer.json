@@ -1,23 +1,24 @@
 {
   "name": "philippgrashoff/cronforatk",
+  "description": "",
   "minimum-stability": "dev",
   "prefer-stable": true,
-  "config":{
-    "platform":{
-      "php":"7.3"
+  "config": {
+    "platform": {
+      "php": "7.3"
     }
   },
-  "require":{
+  "require": {
     "philippgrashoff/traitsforatkdata": "master",
-    "atk4/data": "2.3.0"
+    "atk4/data": "2.3.6"
   },
   "require-dev": {
     "phpunit/phpunit": ">8",
     "php-webdriver/webdriver": "^1.8.2"
   },
-  "autoload":{
-    "psr-4":{
-      "cronforatk\\":"src"
+  "autoload": {
+    "psr-4": {
+      "cronforatk\\": "src"
     }
   },
   "autoload-dev": {
