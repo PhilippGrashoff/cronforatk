@@ -222,27 +222,30 @@ class CronExecutor extends Model
     private function executeCronIfScheduleMatches(): void
     {
         //yearly execution
-        if ($this->get('interval') == 'YEARLY') {
+        if ($this->get('interval') === 'YEARLY') {
             $this->executeYearlyIfMatches();
         } //monthly execution
-        elseif ($this->get('interval') == 'MONTHLY') {
+        elseif ($this->get('interval') === 'MONTHLY') {
             $this->executeMonthlyIfMatches();
         } //weekly execution
-        elseif ($this->get('interval') == 'WEEKLY') {
+        elseif ($this->get('interval') === 'WEEKLY') {
             $this->executeWeeklyIfMatches();
         } //daily execution
-        elseif ($this->get('interval') == 'DAILY') {
-            if ($this->currentTime !== $this->get('time_daily')->format('H:i')) {
+        elseif ($this->get('interval') === 'DAILY') {
+            if (
+                !$this->get('time_daily')
+                || $this->currentTime !== $this->get('time_daily')->format('H:i')
+            ) {
                 return;
             }
             $this->executeCron();
         } //hourly
-        elseif ($this->get('interval') == 'HOURLY') {
+        elseif ($this->get('interval') === 'HOURLY') {
             if (intval($this->currentMinute) !== $this->get('minute_hourly')) {
                 return;
             }
             $this->executeCron();
-        } elseif ($this->get('interval') == 'MINUTELY') {
+        } elseif ($this->get('interval') === 'MINUTELY') {
             $this->executeMinutelyIfMatches();
         }
     }
