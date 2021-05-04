@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace cronforatk\tests\testclasses;
 
-use atk4\data\Model;
+use Atk4\Data\Model;
 
 class SomeNonBaseCronJobChild extends Model
 {

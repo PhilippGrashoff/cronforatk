@@ -1,0 +1,58 @@
+name: Unit Testing
+
+on:
+  pull_request:
+    branches: '**'
+  push:
+    branches: '**'
+
+jobs:
+  phpinsights:
+    name: PHP-Insights
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: PHP-Insights
+        uses: docker://tienvx/phpinsights-action
+
+
+  unit-test:
+    name: Unit
+    runs-on: ubuntu-latest
+    container:
+      image: atk4/image:${{ matrix.php }} # https://github.com/atk4/image
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0']
+        type: ['Phpunit']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup cache 1/2
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Setup cache 2/2
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ matrix.type }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies
+        run: |
+          if [ "${{ matrix.php }}" == "8.0" ]; then composer config platform.php 7.4.5 ; fi
+          composer install --no-suggest --ansi --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: "Run tests"
+        if: matrix.type == 'Phpunit'
+        run: vendor/bin/phpunit tests --whitelist src --coverage-clover tests/coverage.xml -v
+        
+      - name: Codecov
+        uses: codecov/codecov-action@v1
+
