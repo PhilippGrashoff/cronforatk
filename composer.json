@@ -9,7 +9,7 @@
     }
   },
   "require": {
-    "philippgrashoff/traitsforatkdata": "master",
+    "philippgrashoff/traitsforatkdata": "2.3.*",
     "atk4/data": "2.3.6"
   },
   "require-dev": {
