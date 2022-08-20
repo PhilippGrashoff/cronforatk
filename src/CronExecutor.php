@@ -281,7 +281,8 @@ class CronExecutor extends Model
         }
         if (
             intval($this->currentDay) !== $this->get('day_monthly')
-            || $this->currentTime !== $this->get('time_monthly')->format('H:i')) {
+            || $this->currentTime !== $this->get('time_monthly')->format('H:i')
+        ) {
             return;
         }
 
