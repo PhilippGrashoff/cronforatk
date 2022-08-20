@@ -5,16 +5,15 @@
   "prefer-stable": true,
   "config": {
     "platform": {
-      "php": "7.3"
+      "php": "7.4"
     }
   },
   "require": {
-    "philippgrashoff/traitsforatkdata": "2.3.*",
-    "atk4/data": "2.3.6"
+    "philippgrashoff/traitsforatkdata": "2.4.*",
+    "atk4/data": "2.4.*"
   },
   "require-dev": {
-    "phpunit/phpunit": ">8",
-    "php-webdriver/webdriver": "^1.8.2"
+    "phpunit/phpunit": ">8"
   },
   "autoload": {
     "psr-4": {

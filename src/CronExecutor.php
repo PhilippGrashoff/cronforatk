@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace cronforatk;
 
-use atk4\data\Exception;
-use atk4\data\Model;
+use Atk4\Data\Exception;
+use Atk4\Data\Model;
 use atk4\ui\Form\Control\Dropdown;
 use DirectoryIterator;
 use ReflectionClass;
@@ -281,7 +281,8 @@ class CronExecutor extends Model
         }
         if (
             intval($this->currentDay) !== $this->get('day_monthly')
-            || $this->currentTime !== $this->get('time_monthly')->format('H:i')) {
+            || $this->currentTime !== $this->get('time_monthly')->format('H:i')
+        ) {
             return;
         }
 
