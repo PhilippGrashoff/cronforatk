@@ -16,7 +16,7 @@ class CronExecutor extends Model
 
     public $table = 'cron';
 
-    public $intervalSettings = [
+    public array $intervalSettings = [
         'YEARLY' => 'Jährlich',
         'MONTHLY' => 'Monatlich',
         'WEEKLY' => 'Wöchentlich',
@@ -25,7 +25,7 @@ class CronExecutor extends Model
         'MINUTELY' => 'Minütlich'
     ];
 
-    public $minutelyIntervalSettings = [
+    public array $minutelyIntervalSettings = [
         'EVERY_MINUTE' => 'Jede Minute',
         'EVERY_FIFTH_MINUTE' => 'Alle 5 Minuten',
         'EVERY_FIFTEENTH_MINUTE' => 'Alle 15 Minuten'
@@ -33,7 +33,7 @@ class CronExecutor extends Model
 
     //path(es) to  folders where  Cronjob php Files are located
     //format: path => namespace, e.g. 'src/data/cron' => 'YourProject\\Data\\Cron',
-    public $cronFilesPath = [];
+    public array $cronFilesPath = [];
 
     public $currentDate;
     public $currentWeekday;

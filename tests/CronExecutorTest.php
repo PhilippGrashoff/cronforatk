@@ -94,14 +94,14 @@ class CronExecutorTest extends TestCase
     public function testRunMonthly()
     {
         $persistence = $this->getSqliteTestPersistence();
-        $testTime = new \DateTime('2020-05-05');
+        $testTime = new \DateTime('2020-05-07');
         $testTime->setTime(3, 3);
         //this one should be executed
         $cm1 = $this->_getRecord(
             $persistence,
             [
                 'interval' => 'MONTHLY',
-                'day_monthly' => 5,
+                'day_monthly' => 7,
                 'time_monthly' => '03:03',
             ]
         );
@@ -109,7 +109,7 @@ class CronExecutorTest extends TestCase
             $persistence,
             [
                 'interval' => 'MONTHLY',
-                'day_monthly' => 5,
+                'day_monthly' => 7,
                 'time_monthly' => '03:02',
             ]
         );
@@ -117,7 +117,7 @@ class CronExecutorTest extends TestCase
             $persistence,
             [
                 'interval' => 'MONTHLY',
-                'day_monthly' => 5,
+                'day_monthly' => 7,
                 'time_monthly' => '03:04',
             ]
         );
@@ -125,7 +125,7 @@ class CronExecutorTest extends TestCase
             $persistence,
             [
                 'interval' => 'MONTHLY',
-                'day_monthly' => 4,
+                'day_monthly' => 8,
                 'time_monthly' => '03:03',
             ]
         );
