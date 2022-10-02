@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace cronforatk\tests;
 
-use Atk4\Data\Exception;
+use Atk4\Data\Persistence;
+use cronforatk\CronExecutor;
+use cronforatk\tests\testclasses\SomeCronJob;
 use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
 use traitsforatkdata\TestCase;
-use cronforatk\CronExecutor;
-use Atk4\Data\Persistence;
-use cronforatk\tests\testclasses\SomeCronJob;
 
 class CronExecutorTest extends TestCase
 {
@@ -516,7 +515,8 @@ class CronExecutorTest extends TestCase
         self::assertEquals(3, count($cm->getAvailableCrons()));
     }
 
-    public function testExceptionInExecuteDoesNotStopExecutionOfOthers() {
+    public function testExceptionInExecuteDoesNotStopExecutionOfOthers()
+    {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
@@ -559,7 +559,8 @@ class CronExecutorTest extends TestCase
         );
     }
 
-    public function testDurationIsMonitored() {
+    public function testDurationIsMonitored()
+    {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
@@ -585,7 +586,8 @@ class CronExecutorTest extends TestCase
         );
     }
 
-    public function testExceptionExecuteCronThisNotLoaded() {
+    public function testExceptionExecuteCronThisNotLoaded()
+    {
         $persitence = $this->getSqliteTestPersistence();
         $cr = new CronExecutor($persitence);
         self::assertFalse(

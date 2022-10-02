@@ -35,11 +35,13 @@ class CronExecutor extends Model
     //format: path => namespace, e.g. 'src/data/cron' => 'YourProject\\Data\\Cron',
     public array $cronFilesPath = [];
 
-    public $currentDate;
-    public $currentWeekday;
-    public $currentDay;
-    public $currentTime;
-    public $currentMinute;
+    //Format MM-DD
+    public string $currentDate;
+    public int $currentWeekday;
+    public int $currentDay;
+    //Format HH:MM
+    public string $currentTime;
+    public int $currentMinute;
 
 
     protected function init(): void
@@ -202,10 +204,10 @@ class CronExecutor extends Model
         }
 
         $this->currentDate = $dateTime->format('m-d');
-        $this->currentWeekday = $dateTime->format('N');
-        $this->currentDay = $dateTime->format('m');
+        $this->currentWeekday = (int)$dateTime->format('N');
+        $this->currentDay = (int)$dateTime->format('d');
         $this->currentTime = $dateTime->format('H:i');
-        $this->currentMinute = $dateTime->format('i');
+        $this->currentMinute = (int)$dateTime->format('i');
 
         //execute yearly first, minutely last!
         foreach ($this->intervalSettings as $interval => $type) {
