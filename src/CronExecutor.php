@@ -203,7 +203,7 @@ class CronExecutor extends Model
 
         $this->currentDate = $dateTime->format('m-d');
         $this->currentWeekday = $dateTime->format('N');
-        $this->currentDay = $dateTime->format('m');
+        $this->currentDay = (int)$dateTime->format('d');
         $this->currentTime = $dateTime->format('H:i');
         $this->currentMinute = $dateTime->format('i');
 
