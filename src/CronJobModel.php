@@ -11,12 +11,12 @@ use DirectoryIterator;
 use ReflectionClass;
 
 
-class CronExecutor extends Model
+class CronJobModel extends Model
 {
 
     public $table = 'cron';
 
-    public $intervalSettings = [
+    public static array $intervalSettings = [
         'YEARLY' => 'Jährlich',
         'MONTHLY' => 'Monatlich',
         'WEEKLY' => 'Wöchentlich',
@@ -25,22 +25,11 @@ class CronExecutor extends Model
         'MINUTELY' => 'Minütlich'
     ];
 
-    public $minutelyIntervalSettings = [
+    public static array $minutelyIntervalSettings = [
         'EVERY_MINUTE' => 'Jede Minute',
         'EVERY_FIFTH_MINUTE' => 'Alle 5 Minuten',
         'EVERY_FIFTEENTH_MINUTE' => 'Alle 15 Minuten'
     ];
-
-    //path(es) to  folders where  Cronjob php Files are located
-    //format: path => namespace, e.g. 'src/data/cron' => 'YourProject\\Data\\Cron',
-    public $cronFilesPath = [];
-
-    public $currentDate;
-    public $currentWeekday;
-    public $currentDay;
-    public $currentTime;
-    public $currentMinute;
-
 
     protected function init(): void
     {
