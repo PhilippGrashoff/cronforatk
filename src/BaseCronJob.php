@@ -23,13 +23,13 @@ abstract class BaseCronJob
      * The name of the cronjob to display to a user. Static so it can be accessed by CronJobLoader
      * without having to create an instance
      */
-    public static string $name = '';
+    protected static string $name = '';
 
     /** @var string An optional description explaining what the cronjob is doing */
-    public static string $description = '';
+    protected static string $description = '';
 
     /** @var Persistence */
-    public Persistence $persistence;
+    protected Persistence $persistence;
 
     /** @var array<int, string> In here, the cronjob can log what it did on execution */
     public array $executionLog = [];

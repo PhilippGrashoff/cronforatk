@@ -224,15 +224,15 @@ class CronJobModel extends Model
 
         $this->onHook(
             Model::HOOK_BEFORE_SAVE,
-            function (self $model, bool $isUpdate) {
-                if (!$model->isDirty('cronjob_class')) {
+            function (self $cronJobEntity, bool $isUpdate) {
+                if (!$cronJobEntity->isDirty('cronjob_class')) {
                     return;
                 }
 
-                $className = $model->get('cronjob_class');
+                $className = $cronJobEntity->get('cronjob_class');
 
-                $model->set('name', $className::getName());
-                $model->set('description', $className::getDescription());
+                $cronJobEntity->set('name', $className::getName());
+                $cronJobEntity->set('description', $className::getDescription());
             }
         );
     }

@@ -10,7 +10,8 @@ use cronforatk\BaseCronJob;
 class SomeCronJob extends BaseCronJob
 {
 
-    public $description = 'SomeDescriptionExplainingWhatThisIsDoing';
+    public static string $name = 'SomeNameForThisCron';
+    public static string $description = 'SomeDescriptionExplainingWhatThisIsDoing';
 
     public function execute(): void
     {

@@ -3,19 +3,15 @@
   "description": "",
   "minimum-stability": "dev",
   "prefer-stable": true,
-  "config": {
-    "platform": {
-      "php": "7.3"
-    }
-  },
   "require": {
-    "philippgrashoff/traitsforatkdata": "2.3.*",
-    "atk4/data": "2.3.6",
+    "php": "8.*",
+    "philippgrashoff/atkextendedtestcase": "4.*",
+    "atk4/data": "4.*",
     "ext-json": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": ">8",
-    "php-webdriver/webdriver": "^1.8.2"
+    "phpunit/phpunit": "9.5.25",
+    "phpstan/phpstan": "1.*"
   },
   "autoload": {
     "psr-4": {

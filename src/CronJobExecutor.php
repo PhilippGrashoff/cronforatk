@@ -13,11 +13,11 @@ class CronJobExecutor
 {
     protected Persistence $persistence;
 
-    public string $currentDate;
-    public int $currentWeekday;
-    public int $currentDay;
-    public string $currentTime;
-    public int $currentMinute;
+    protected string $currentDate;
+    protected int $currentWeekday;
+    protected int $currentDay;
+    protected string $currentTime;
+    protected int $currentMinute;
 
 
     public function __construct(Persistence $persistence)
