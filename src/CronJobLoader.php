@@ -11,23 +11,17 @@ use ReflectionClass;
 class CronJobLoader
 {
 
-    /** @var array<string, string>
-     * path(es) to  folders where  Cronjob php Files are located
-     * format: path => namespace, e.g. 'src/data/cron' => 'YourProject\\Data\\Cron',
-     */
-    public array $cronFilesPath = [];
-
-
     /**
-     * Loads all Cronjob Files and returns them as array:
+     * Loads all available Cronjob implementations and returns them as array:
      * Fully\Qualified\ClassName => Name property
      *
-     * @return array<class-string,string>
+     * @param array<string, class-string> $paths
+     * @return array<class-string<BaseCronJob>,string>
      */
-    public function getAvailableCronJobs(): array
+    public static function getAvailableCronJobs(array $paths): array
     {
         $availableCronJobs = [];
-        foreach ($this->cronFilesPath as $path => $namespace) {
+        foreach ($paths as $path => $namespace) {
             $dirName = FILE_BASE_PATH . $path;
             if (!file_exists($dirName)) {
                 continue;

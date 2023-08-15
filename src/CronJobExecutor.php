@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace cronforatk;
 
+use Atk4\Data\Exception;
 use Atk4\Data\Persistence;
 use DateTime;
 
@@ -11,21 +12,6 @@ use DateTime;
 class CronJobExecutor
 {
     protected Persistence $persistence;
-
-    public array $intervalSettings = [
-        'YEARLY' => 'Jährlich',
-        'MONTHLY' => 'Monatlich',
-        'WEEKLY' => 'Wöchentlich',
-        'DAILY' => 'Täglich',
-        'HOURLY' => 'Stündlich',
-        'MINUTELY' => 'Minütlich'
-    ];
-
-    public array $minutelyIntervalSettings = [
-        'EVERY_MINUTE' => 'Jede Minute',
-        'EVERY_FIFTH_MINUTE' => 'Alle 5 Minuten',
-        'EVERY_FIFTEENTH_MINUTE' => 'Alle 15 Minuten'
-    ];
 
     public string $currentDate;
     public int $currentWeekday;
@@ -42,6 +28,8 @@ class CronJobExecutor
     /**
      * @param DateTime|null $dateTime
      * @return void
+     * @throws \Atk4\Core\Exception
+     * @throws Exception
      */
     public function run(DateTime $dateTime = null): void
     {
@@ -57,7 +45,7 @@ class CronJobExecutor
         $this->currentMinute = (int)$dateTime->format('i');
 
         //execute yearly first, minutely last.
-        foreach ($this->intervalSettings as $interval => $type) {
+        foreach (CronJobModel::$intervalSettings as $interval) {
             $cronJobModels = new CronJobModel($this->persistence);
             $cronJobModels->addCondition('interval', $interval);
             $cronJobModels->addCondition('is_active', 1);
@@ -68,6 +56,12 @@ class CronJobExecutor
         }
     }
 
+    /**
+     * @param CronJobModel $cronJobEntity
+     * @return void
+     * @throws \Atk4\Core\Exception
+     * @throws Exception
+     */
     private function executeCronIfScheduleMatches(CronJobModel $cronJobEntity): void
     {
         $entityInterval = $cronJobEntity->get('interval');
@@ -86,6 +80,10 @@ class CronJobExecutor
         }
     }
 
+    /**
+     * @param CronJobModel $cronJobEntity
+     * @return bool
+     */
     private function checkYearlyExecutionIsNow(CronJobModel $cronJobEntity): bool
     {
         if (
@@ -105,7 +103,10 @@ class CronJobExecutor
         return true;
     }
 
-
+    /**
+     * @param CronJobModel $cronJobEntity
+     * @return bool
+     */
     private function checkMonthlyExecutionIsNow(CronJobModel $cronJobEntity): bool
     {
         if (
@@ -124,6 +125,10 @@ class CronJobExecutor
         return true;
     }
 
+    /**
+     * @param CronJobModel $cronJobEntity
+     * @return bool
+     */
     private function checkWeeklyExecutionIsNow(CronJobModel $cronJobEntity): bool
     {
         if (
@@ -136,6 +141,10 @@ class CronJobExecutor
         return true;
     }
 
+    /**
+     * @param CronJobModel $cronJobEntity
+     * @return bool
+     */
     private function checkDailyExecutionIsNow(CronJobModel $cronJobEntity): bool
     {
         if (
@@ -147,11 +156,19 @@ class CronJobExecutor
         return true;
     }
 
+    /**
+     * @param CronJobModel $cronJobEntity
+     * @return bool
+     */
     private function checkHourlyExecutionIsNow(CronJobModel $cronJobEntity): bool
     {
         return $this->currentMinute !== $cronJobEntity->get('minute_hourly');
     }
 
+    /**
+     * @param CronJobModel $cronJobEntity
+     * @return bool
+     */
     private function checkMinutelyExecutionIsNow(CronJobModel $cronJobEntity): bool
     {
         if ($cronJobEntity->get('interval_minutely') == 'EVERY_MINUTE') {
@@ -170,32 +187,33 @@ class CronJobExecutor
         return false;
     }
 
-    //TODO: Make protected? 
-    private function executeCronJob(CronJobModel $cronJobEntity): bool
+    /**
+     * @param CronJobModel $cronJobEntity
+     * @return void
+     * @throws \Atk4\Core\Exception
+     * @throws Exception
+     */
+    private function executeCronJob(CronJobModel $cronJobEntity): void
     {
+        $cronJobEntity->set('last_executed', new DateTime());
         try {
-            $cronJobEntity->set('last_executed', new DateTime());
-            $cronJobEntity->save();
-
             $startOfCron = microtime(true);
+            $cronJobClass = $cronJobEntity->get('cronjob_class');
+            $cronJobInstance = new $cronJobClass($this->persistence, $cronJobEntity->get('defaults'));
+            $cronJobInstance->execute();
 
-            $cronJobEntity->execute();
             $cronJobEntity->set('last_execution_duration', microtime(true) - $startOfCron);
             $cronJobEntity->set('last_execution_success', true);
             $cronJobEntity->set('last_execution_output', $cronJobEntity->getLastExecutionLog());
             $cronJobEntity->save();
+            //$cronJobEntity->reportSuccess($cronJobEntity);
 
-            $cronJobEntity->reportSuccess($cronJobEntity);
-
-            return true;
         } //catch any errors as more than one cron could be executed per minutely run
         catch (\Throwable $e) {
             $cronJobEntity->set('last_execution_success', false);
             $cronJobEntity->set('last_execution_output', [$e->getMessage()]);
             $cronJobEntity->save();
-
-            $this->reportFailure($e);
-            return false;
+            //$this->reportFailure($e);
         }
     }
 

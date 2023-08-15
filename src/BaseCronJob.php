@@ -26,14 +26,14 @@ abstract class BaseCronJob
     public static string $name = '';
 
     /** @var string An optional description explaining what the cronjob is doing */
-    public string $description = '';
+    public static string $description = '';
 
     /** @var Persistence */
     public Persistence $persistence;
 
-
     /** @var array<int, string> In here, the cronjob can log what it did on execution */
     public array $executionLog = [];
+
     /**
      * @param Persistence $persistence
      * @param array<string, string> $defaults
@@ -63,6 +63,14 @@ abstract class BaseCronJob
             return (new \ReflectionClass(__CLASS__))->getShortName();
         }
         return self::$name;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getDescription(): string
+    {
+        return self::$description;
     }
 
     /**

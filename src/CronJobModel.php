@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace cronforatk;
 
-use atk4\data\Exception;
 use atk4\data\Model;
 use atk4\ui\Form\Control\Dropdown;
-use DirectoryIterator;
-use ReflectionClass;
 
 
 class CronJobModel extends Model
 {
 
     public $table = 'cron';
+
+    /** @var array<string, class-string>
+     * path(es) to  folders where  Cronjob php Files are located
+     * format: path => namespace, e.g. 'src/data/cron' => 'YourProject\\Data\\Cron',
+     */
+    public array $cronFilesPaths = [];
 
     /** @var array|string[] */
     public static array $intervalSettings = [
@@ -23,7 +26,7 @@ class CronJobModel extends Model
         'WEEKLY',
         'DAILY',
         'HOURLY',
-        'MINUTELY',
+        'MINUTELY'
     ];
 
     /** @var array|string[] */
@@ -38,14 +41,15 @@ class CronJobModel extends Model
         parent::init();
 
         $this->addField(
-            'type',
+            'cronjob_class',
             [
                 'type' => 'string',
                 'caption' => 'Diesen Cronjob ausführen',
-                'values' => $this->getAvailableCrons(),
+                'values' => CronJobLoader::getAvailableCronJobs($this->cronFilesPaths),
                 'ui' => ['form' => [Dropdown::class]]
             ]
         );
+
         $this->addField(
             'name',
             [
@@ -53,6 +57,7 @@ class CronJobModel extends Model
                 'caption' => 'Cronjob Name'
             ]
         );
+
         $this->addField(
             'description',
             [
@@ -220,17 +225,14 @@ class CronJobModel extends Model
         $this->onHook(
             Model::HOOK_BEFORE_SAVE,
             function (self $model, bool $isUpdate) {
-                if (!$model->isDirty('type')) {
+                if (!$model->isDirty('cronjob_class')) {
                     return;
                 }
-                $className = $model->get('type');
 
-                $cronClass = new $className(
-                    $this->persistence,
-                    is_array($model->get('defaults')) ? $model->get('defaults') : []
-                );
-                $model->set('name', $cronClass->name);
-                $model->set('description', $cronClass->description);
+                $className = $model->get('cronjob_class');
+
+                $model->set('name', $className::getName());
+                $model->set('description', $className::getDescription());
             }
         );
     }
