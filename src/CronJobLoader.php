@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace cronforatk;
 
-use atk4\data\Exception;
-use atk4\data\Model;
-use atk4\ui\Form\Control\Dropdown;
 use DirectoryIterator;
 use ReflectionClass;
 
@@ -18,16 +15,18 @@ class CronJobLoader
      * path(es) to  folders where  Cronjob php Files are located
      * format: path => namespace, e.g. 'src/data/cron' => 'YourProject\\Data\\Cron',
      */
-    public array$cronFilesPath = [];
+    public array $cronFilesPath = [];
 
 
     /**
      * Loads all Cronjob Files and returns them as array:
      * Fully\Qualified\ClassName => Name property
+     *
+     * @return array<class-string,string>
      */
-    public function getAvailableCrons(): array
+    public function getAvailableCronJobs(): array
     {
-        $res = [];
+        $availableCronJobs = [];
         foreach ($this->cronFilesPath as $path => $namespace) {
             $dirName = FILE_BASE_PATH . $path;
             if (!file_exists($dirName)) {
@@ -48,13 +47,10 @@ class CronJobLoader
                     continue;
                 }
 
-                //maybe reflection needed in case contructor is not compatible
-                $class = new $className($this->persistence);
-
-                $res[get_class($class)] = $class->getName();
+                $availableCronJobs[$className] = $className::getName();
             }
         }
 
-        return $res;
+        return $availableCronJobs;
     }
 }

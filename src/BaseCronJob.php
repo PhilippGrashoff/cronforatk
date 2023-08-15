@@ -19,8 +19,11 @@ abstract class BaseCronJob
 
     use DIContainerTrait;
 
-    /** @var string The name of the cronjob to display to a user */
-    public string $name = '';
+    /** @var string
+     * The name of the cronjob to display to a user. Static so it can be accessed by CronJobLoader
+     * without having to create an instance
+     */
+    public static string $name = '';
 
     /** @var string An optional description explaining what the cronjob is doing */
     public string $description = '';
@@ -54,12 +57,12 @@ abstract class BaseCronJob
     /**
      * @return string
      */
-    public function getName(): string
+    public static function getName(): string
     {
-        if (empty($this->name)) {
-            return (new \ReflectionClass($this))->getShortName();
+        if (empty(self::$name)) {
+            return (new \ReflectionClass(__CLASS__))->getShortName();
         }
-        return (string)$this->name;
+        return self::$name;
     }
 
     /**
