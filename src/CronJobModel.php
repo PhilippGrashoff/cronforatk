@@ -38,8 +38,6 @@ class CronJobModel extends Model
         parent::init();
 
         $this->addField(
-
-
             'type',
             [
                 'type' => 'string',
@@ -237,7 +235,9 @@ class CronJobModel extends Model
         );
     }
 
-
+    /**
+     * @return string
+     */
     public function getScheduleInfo(): string
     {
         if (!$this->get('is_active')) {
@@ -248,7 +248,7 @@ class CronJobModel extends Model
             && $this->get('date_yearly')
             && $this->get('time_yearly')
         ) {
-            return 'Jährlich am ' . $this->get('date_yearly')->format('d.m.Y')
+            return 'Jährlich am ' . $this->get('date_yearly')->format('m.Y')
                 . ' um ' . $this->get('time_yearly')->format('H:i');
         }
         if (
