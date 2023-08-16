@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace cronforatk\tests;
 
-use atk4\data\Exception;
+use Atk4\Data\Exception;
 use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
 use traitsforatkdata\TestCase;
 use cronforatk\CronJobExecutor;
-use atk4\data\Persistence;
+use Atk4\Data\Persistence;
 use cronforatk\tests\testclasses\SomeCronJob;
 
 class CronJobExecutorTest extends TestCase

@@ -21,8 +21,7 @@ class CronJobLoader
     public static function getAvailableCronJobs(array $paths): array
     {
         $availableCronJobs = [];
-        foreach ($paths as $path => $namespace) {
-            $dirName = FILE_BASE_PATH . $path;
+        foreach ($paths as $dirName => $namespace) {
             if (!file_exists($dirName)) {
                 continue;
             }

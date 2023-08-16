@@ -5,40 +5,61 @@ declare(strict_types=1);
 namespace cronforatk\tests;
 
 use atkextendedtestcase\TestCase;
-use cronforatk\CronJobExecutor;
-use cronforatk\tests\testclasses\SomeCronJob;
+use cronforatk\CronJobLoader;
 
 class CronJobLoaderTest extends TestCase
 {
 
-    protected array $sqlitePersistenceModels = [
-        CronJobExecutor::class
-    ];
-
     public function testLoadAvailableCronJobs(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
-        $cm = $this->_getRecord($persistence, []);
-        $res = $cm->getAvailableCrons();
-        self::assertTrue(array_key_exists(SomeCronJob::class, $res));
-        self::assertFalse(array_key_exists(CronJobExecutor::class, $res));
+        $resultOneDir = CronJobLoader::getAvailableCronJobs(
+            [__DIR__ . '/testclasses' => 'cronforatk\\tests\\testclasses']
+
+        );
+        self::assertSame(
+            [
+                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'BaseCronJob',
+                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'BaseCronJob',
+                'cronforatk\tests\testclasses\SomeCronJob' => 'BaseCronJob'
+            ],
+            $resultOneDir
+        );
     }
 
     public function testLoadAvailableCronJobsFrom2Directories(): void
     {
-    }
-
-    public function testNonExistentFolderIsSkipped()
-    {
-        $cm = new CronJobExecutor(
-            $this->getSqliteTestPersistence(),
+        $resultTwoDirs = CronJobLoader::getAvailableCronJobs(
             [
-                'cronFilesPath' => [
-                    'some/non/existant/path' => 'PMRAtk\\Data\\Cron',
-                    '/tests/testclasses/' => 'cronforatk\\tests\\testclasses',
-                ]
+                __DIR__ . '/testclasses' => 'cronforatk\\tests\\testclasses',
+                __DIR__ . '/testclasses2' => 'cronforatk\\tests\\testclasses2'
             ]
         );
-        self::assertEquals(3, count($cm->getAvailableCrons()));
+        self::assertSame(
+            [
+                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'BaseCronJob',
+                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'BaseCronJob',
+                'cronforatk\tests\testclasses\SomeCronJob' => 'BaseCronJob',
+                'cronforatk\tests\testclasses2\SomeOtherCronJob' => 'BaseCronJob'
+            ],
+            $resultTwoDirs
+        );
+    }
+
+    public function testNonExistentFolderIsSkipped(): void
+    {
+        $resultOneDir = CronJobLoader::getAvailableCronJobs(
+            [
+                __DIR__ . '/testclasses' => 'cronforatk\\tests\\testclasses',
+                'some/non/existant/path' => 'PMRAtk\\Data\\Cron',
+            ]
+        );
+        self::assertSame(
+            [
+                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'BaseCronJob',
+                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'BaseCronJob',
+                'cronforatk\tests\testclasses\SomeCronJob' => 'BaseCronJob'
+            ],
+            $resultOneDir
+        );
     }
 }

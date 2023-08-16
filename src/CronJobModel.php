@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace cronforatk;
 
-use atk4\data\Model;
-use atk4\ui\Form\Control\Dropdown;
+use Atk4\Data\Model;
 
 
 class CronJobModel extends Model
@@ -218,7 +217,7 @@ class CronJobModel extends Model
                     return $record->getScheduleInfo();
                 },
                 'type' => 'string',
-                'caption' => 'Ausführungsintervall',
+                'caption' => 'Execution Interval',
             ]
         );
 

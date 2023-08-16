@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace cronforatk\tests\testclasses;
 
+use Atk4\Data\Exception;
 use cronforatk\BaseCronJob;
-use atk4\data\Exception;
 
 class SomeCronJobWithExceptionInExecute extends BaseCronJob
 {

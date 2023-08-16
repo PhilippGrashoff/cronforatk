@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace cronforatk;
 
-use atk4\core\DIContainerTrait;
-use atk4\data\Exception;
-use atk4\data\Persistence;
+use Atk4\Core\DIContainerTrait;
+use Atk4\Data\Exception;
+use Atk4\Data\Persistence;
 use JsonException;
 
 
