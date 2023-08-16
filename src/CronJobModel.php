@@ -20,19 +20,19 @@ class CronJobModel extends Model
 
     /** @var array|string[] */
     public static array $intervalSettings = [
-        'YEARLY',
-        'MONTHLY',
-        'WEEKLY',
-        'DAILY',
-        'HOURLY',
-        'MINUTELY'
+        'YEARLY' => 'Yearly',
+        'MONTHLY' => 'Monthly',
+        'WEEKLY' => 'Weekly',
+        'DAILY' => 'Daily',
+        'HOURLY' => 'Hourly',
+        'MINUTELY' => 'Minutely'
     ];
 
     /** @var array|string[] */
     public static array $minutelyIntervalSettings = [
-        'EVERY_MINUTE',
-        'EVERY_FIFTH_MINUTE',
-        'EVERY_FIFTEENTH_MINUTE'
+        'EVERY_MINUTE' => 'Every minute',
+        'EVERY_FIFTH_MINUTE' => 'Every fifth minute',
+        'EVERY_FIFTEENTH_MINUTE' => 'Every fifteenth minute'
     ];
 
     protected function init(): void
@@ -68,9 +68,8 @@ class CronJobModel extends Model
         $this->addField(
             'defaults',
             [
-                'type' => 'array',
+                'type' => 'json',
                 'caption' => 'Additional options for cronjob',
-                'serialize' => 'json'
             ]
         );
 
@@ -203,8 +202,7 @@ class CronJobModel extends Model
         $this->addField(
             'last_execution_output',
             [
-                'type' => 'array',
-                'serialize' => 'serialize',
+                'type' => 'json',
                 'system' => true
             ]
         );
@@ -213,7 +211,7 @@ class CronJobModel extends Model
         $this->addCalculatedField(
             'schedule_info',
             [
-                function (self $record): string {
+                'expr' => function (self $record): string {
                     return $record->getScheduleInfo();
                 },
                 'type' => 'string',

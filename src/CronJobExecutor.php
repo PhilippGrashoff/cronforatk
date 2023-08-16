@@ -45,7 +45,7 @@ class CronJobExecutor
         $this->currentMinute = (int)$dateTime->format('i');
 
         //execute yearly first, minutely last.
-        foreach (CronJobModel::$intervalSettings as $interval) {
+        foreach (CronJobModel::$intervalSettings as $interval => $intervalName) {
             $cronJobModels = new CronJobModel($this->persistence);
             $cronJobModels->addCondition('interval', $interval);
             $cronJobModels->addCondition('is_active', 1);

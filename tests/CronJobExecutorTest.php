@@ -4,105 +4,87 @@ declare(strict_types=1);
 
 namespace cronforatk\tests;
 
-use Atk4\Data\Exception;
-use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
-use traitsforatkdata\TestCase;
-use cronforatk\CronJobExecutor;
 use Atk4\Data\Persistence;
+use atkextendedtestcase\TestCase;
+use cronforatk\CronJobExecutor;
+use cronforatk\CronJobModel;
 use cronforatk\tests\testclasses\SomeCronJob;
+use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
 
 class CronJobExecutorTest extends TestCase
 {
 
-    protected $sqlitePersistenceModels = [
-        CronJobExecutor::class
+    protected array $sqlitePersistenceModels = [
+        CronJobModel::class
     ];
 
-    public function testGetAvailableCrons()
-    {
-        $persistence = $this->getSqliteTestPersistence();
-        $cm = $this->_getRecord($persistence, []);
-        $res = $cm->getAvailableCrons();
-        self::assertTrue(array_key_exists(SomeCronJob::class, $res));
-        self::assertFalse(array_key_exists(CronJobExecutor::class, $res));
-    }
 
     public function testRunYearly()
     {
         $persistence = $this->getSqliteTestPersistence();
-        $testTime = new \DateTime('2020-05-05');
-        $testTime->setTime(3, 3);
+        $testTime = new \DateTime('2020-11-05');
+        $testTime->setTime(3, 11);
         //this one should be executed
         $cm1 = $this->_getRecord(
             $persistence,
             [
                 'interval' => 'YEARLY',
-                'date_yearly' => '2020-05-05',
-                'time_yearly' => '03:03',
+                'date_yearly' => $testTime,
+                'time_yearly' => $testTime
             ]
         );
         $cm2 = $this->_getRecord(
             $persistence,
             [
                 'interval' => 'YEARLY',
-                'date_yearly' => '2020-05-05',
-                'time_yearly' => '03:04',
+                'date_yearly' => $testTime,
+                'time_yearly' => (new \DateTime())->setTime(3, 12, 0)
             ]
         );
         $cm3 = $this->_getRecord(
             $persistence,
             [
                 'interval' => 'YEARLY',
-                'date_yearly' => '2020-05-05',
-                'time_yearly' => '03:02',
+                'date_yearly' => $testTime,
+                'time_yearly' => (new \DateTime())->setTime(3, 10, 0)
             ]
         );
         $cm4 = $this->_getRecord(
             $persistence,
             [
                 'interval' => 'YEARLY',
-                'date_yearly' => '2020-05-06',
-                'time_yearly' => '03:03',
-            ]
-        );
-        $cm5 = $this->_getRecord(
-            $persistence,
-            [
-                'interval' => 'YEARLY',
-                'date_yearly' => '2020-06-05',
-                'time_yearly' => '03:03',
+                'date_yearly' => new \DateTime('2020-11-06'),
+                'time_yearly' => $testTime,
             ]
         );
 
         //only one should be executed
-        $cm = new CronJobExecutor($persistence);
-        $cm->run($testTime);
+        $cronJobExecutor = new CronJobExecutor($persistence);
+        $cronJobExecutor->run($testTime);
 
         $cm1->reload();
         $cm2->reload();
         $cm3->reload();
         $cm4->reload();
-        $cm5->reload();
 
         self::assertInstanceOf(\Datetime::class, $cm1->get('last_executed'));
         self::assertNull($cm2->get('last_executed'));
         self::assertNull($cm3->get('last_executed'));
         self::assertNull($cm4->get('last_executed'));
-        self::assertNull($cm5->get('last_executed'));
     }
 
     public function testRunMonthly()
     {
         $persistence = $this->getSqliteTestPersistence();
-        $testTime = new \DateTime('2020-05-05');
-        $testTime->setTime(3, 3);
+        $testTime = new \DateTime('2020-08-05');
+        $testTime->setTime(3, 14);
         //this one should be executed
         $cm1 = $this->_getRecord(
             $persistence,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
-                'time_monthly' => '03:03',
+                'time_monthly' => $testTime,
             ]
         );
         $cm2 = $this->_getRecord(
@@ -110,7 +92,7 @@ class CronJobExecutorTest extends TestCase
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
-                'time_monthly' => '03:02',
+                'time_monthly' => (clone $testTime)->modify('-1 Minute'),
             ]
         );
         $cm3 = $this->_getRecord(
@@ -118,7 +100,7 @@ class CronJobExecutorTest extends TestCase
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
-                'time_monthly' => '03:04',
+                'time_monthly' => (clone $testTime)->modify('+1 Minute'),
             ]
         );
         $cm4 = $this->_getRecord(
@@ -126,7 +108,7 @@ class CronJobExecutorTest extends TestCase
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 4,
-                'time_monthly' => '03:03',
+                'time_monthly' => $testTime
             ]
         );
         $cm5 = $this->_getRecord(
@@ -134,13 +116,13 @@ class CronJobExecutorTest extends TestCase
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 6,
-                'time_monthly' => '03:03',
+                'time_monthly' => $testTime,
             ]
         );
 
         //only one should be executed
-        $cm = new CronJobExecutor($persistence);
-        $cm->run($testTime);
+        $cronJobExecutor = new CronJobExecutor($persistence);
+        $cronJobExecutor->run($testTime);
 
         $cm1->reload();
         $cm2->reload();
@@ -516,7 +498,8 @@ class CronJobExecutorTest extends TestCase
         self::assertEquals(3, count($cm->getAvailableCrons()));
     }
 
-    public function testExceptionInExecuteDoesNotStopExecutionOfOthers() {
+    public function testExceptionInExecuteDoesNotStopExecutionOfOthers()
+    {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
@@ -559,7 +542,8 @@ class CronJobExecutorTest extends TestCase
         );
     }
 
-    public function testDurationIsMonitored() {
+    public function testDurationIsMonitored()
+    {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
@@ -585,7 +569,8 @@ class CronJobExecutorTest extends TestCase
         );
     }
 
-    public function testExceptionExecuteCronThisNotLoaded() {
+    public function testExceptionExecuteCronThisNotLoaded()
+    {
         $persitence = $this->getSqliteTestPersistence();
         $cr = new CronJobExecutor($persitence);
         self::assertFalse(
@@ -594,19 +579,11 @@ class CronJobExecutorTest extends TestCase
     }
 
 
-    private function _getRecord(Persistence $persistence, array $set = []): CronJobExecutor
+    private function _getRecord(Persistence $persistence, array $set = []): CronJobModel
     {
-        $cm = new CronJobExecutor(
-            $persistence,
-            [
-                'cronFilesPath' =>
-                    [
-                        '/tests/testclasses/' => 'cronforatk\\tests\\testclasses',
-                    ]
-            ]
-        );
+        $cm = (new CronJobModel($persistence))->createEntity();
 
-        $cm->set('type', SomeCronJob::class);
+        $cm->set('cronjob_class', SomeCronJob::class);
         $cm->set('is_active', 1);
         $cm->setMulti($set);
 

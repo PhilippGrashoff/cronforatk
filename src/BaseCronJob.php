@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace cronforatk;
 
-use Atk4\Core\DIContainerTrait;
+use Atk4\Core\DiContainerTrait;
 use Atk4\Data\Exception;
 use Atk4\Data\Persistence;
-use JsonException;
 
 
 /**
@@ -59,10 +58,10 @@ abstract class BaseCronJob
      */
     public static function getName(): string
     {
-        if (empty(self::$name)) {
-            return (new \ReflectionClass(__CLASS__))->getShortName();
+        if (empty(static::$name)) {
+            return (new \ReflectionClass(static::class))->getShortName();
         }
-        return self::$name;
+        return static::$name;
     }
 
     /**
@@ -70,15 +69,6 @@ abstract class BaseCronJob
      */
     public static function getDescription(): string
     {
-        return self::$description;
-    }
-
-    /**
-     * @return string
-     * @throws JsonException
-     */
-    public function getExecutionLog(): string
-    {
-        return json_encode($this->executionLog, JSON_THROW_ON_ERROR);
+        return static::$description;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace cronforatk\tests;
 
 use atkextendedtestcase\TestCase;
+use cronforatk\BaseCronJob;
 use cronforatk\tests\testclasses\SomeCronJob;
 use cronforatk\tests\testclasses\SomeCronJobWithoutExecute;
 
@@ -15,23 +16,33 @@ class BaseCronJobTest extends TestCase
     {
         $persistence = $this->getSqliteTestPersistence();
         $cron = new SomeCronJobWithoutExecute($persistence);
-        self::expectExceptionMessage('SomeException');
+        self::expectExceptionMessage('execute needs to ne implemented in descendants of cronforatk\BaseCronJob');
         $cron->execute();
     }
 
     public function testGetName(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
-        $cron = new SomeCronJob($persistence);
         self::assertSame(
-            'SomeCronJob',
-            $cron->getName()
+            'SomeNameForThisCron',
+            SomeCronJob::getName()
         );
 
-        $cron->name = 'SOMENAME';
         self::assertSame(
-            'SOMENAME',
-            $cron->getName()
+            'SomeCronJobWithoutExecute',
+            SomeCronJobWithoutExecute::getName()
+        );
+    }
+
+    public function testGetDescription(): void
+    {
+        self::assertSame(
+            '',
+            BaseCronJob::getDescription()
+        );
+
+        self::assertSame(
+            'SomeDescriptionExplainingWhatThisIsDoing',
+            SomeCronJob::getDescription()
         );
     }
 }
