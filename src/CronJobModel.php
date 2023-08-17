@@ -10,7 +10,7 @@ use Atk4\Data\Model;
 class CronJobModel extends Model
 {
 
-    public $table = 'cron';
+    public $table = 'cronjob';
 
     /** @var array<string, class-string>
      * path(es) to  folders where  Cronjob php Files are located
@@ -45,7 +45,6 @@ class CronJobModel extends Model
                 'type' => 'string',
                 'caption' => 'Diesen Cronjob ausführen',
                 'values' => CronJobLoader::getAvailableCronJobs($this->cronFilesPaths),
-                'ui' => ['form' => [Dropdown::class]]
             ]
         );
 
@@ -87,7 +86,6 @@ class CronJobModel extends Model
                 'type' => 'string',
                 'caption' => 'Execution interval',
                 'values' => self::$intervalSettings,
-                'ui' => ['form' => [Dropdown::class]]
             ]
         );
 
@@ -128,7 +126,6 @@ class CronJobModel extends Model
             [
                 'type' => 'integer',
                 'caption' => 'at this weekday',
-                'ui' => ['form' => [Dropdown::class]]
             ]
         );
 
@@ -162,7 +159,6 @@ class CronJobModel extends Model
                 'type' => 'string',
                 'caption' => 'Intervall',
                 'values' => self::$minutelyIntervalSettings,
-                'ui' => ['form' => [Dropdown::class]]
             ]
         );
 
@@ -175,34 +171,17 @@ class CronJobModel extends Model
             ]
         );
 
-        $this->addField(
+        $this->hasMany(
+            CronJobExecutionLog::class,
+            ['model' => [CronJobExecutionLog::class], 'theirField' => 'cronjob_id']
+        );
+        $this->addExpression(
             'last_executed',
             [
+                'expr' => $this->refLink(CronJobExecutionLog::class)
+                    ->action('field', ['execution_datetime'])
+                    ->limit(1),
                 'type' => 'datetime',
-                'system' => true
-            ]
-        );
-
-        $this->addField(
-            'last_execution_success',
-            [
-                'type' => 'boolean',
-                'system' => true
-            ]
-        );
-
-        $this->addField(
-            'last_execution_duration',
-            [
-                'type' => 'float',
-                'system' => true
-            ]
-        );
-
-        $this->addField(
-            'last_execution_output',
-            [
-                'type' => 'json',
                 'system' => true
             ]
         );

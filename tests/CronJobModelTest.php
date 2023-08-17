@@ -11,7 +11,8 @@ class CronJobModelTest extends TestCase
 {
 
     protected array $sqlitePersistenceModels = [
-        CronJobModel::class
+        CronJobModel::class,
+        \cronforatk\CronJobExecutionLog::class
     ];
 
     public function testNameAndDescriptionLoadedFromBaseCronJob()

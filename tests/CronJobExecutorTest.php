@@ -6,6 +6,7 @@ namespace cronforatk\tests;
 
 use Atk4\Data\Persistence;
 use atkextendedtestcase\TestCase;
+use cronforatk\CronJobExecutionLog;
 use cronforatk\CronJobExecutor;
 use cronforatk\CronJobModel;
 use cronforatk\tests\testclasses\SomeCronJob;
@@ -15,7 +16,8 @@ class CronJobExecutorTest extends TestCase
 {
 
     protected array $sqlitePersistenceModels = [
-        CronJobModel::class
+        CronJobModel::class,
+        CronJobExecutionLog::class
     ];
 
 
