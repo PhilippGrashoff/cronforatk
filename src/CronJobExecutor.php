@@ -7,6 +7,7 @@ namespace cronforatk;
 use Atk4\Data\Exception;
 use Atk4\Data\Persistence;
 use DateTime;
+use DateTimeInterface;
 use Throwable;
 
 
@@ -88,8 +89,8 @@ class CronJobExecutor
     protected function checkYearlyExecutionIsNow(CronJobModel $cronJobEntity): bool
     {
         if (
-            !$cronJobEntity->get('date_yearly') instanceof \DateTimeInterface
-            || !$cronJobEntity->get('time_yearly') instanceof \DateTimeInterface
+            !$cronJobEntity->get('date_yearly') instanceof DateTimeInterface
+            || !$cronJobEntity->get('time_yearly') instanceof DateTimeInterface
         ) {
             return false;
         }
@@ -113,7 +114,7 @@ class CronJobExecutor
         if (
             $cronJobEntity->get('day_monthly') < 1
             || $cronJobEntity->get('day_monthly') > 28 //TODO this is simply wrong
-            || !$cronJobEntity->get('time_monthly') instanceof \DateTimeInterface
+            || !$cronJobEntity->get('time_monthly') instanceof DateTimeInterface
         ) {
             return false;
         }
@@ -201,6 +202,7 @@ class CronJobExecutor
         $executionLog->set('execution_datetime', new DateTime());
         $startOfCron = microtime(true);
         try {
+            /** @var class-string<BaseCronJob> $cronJobClass */
             $cronJobClass = $entity->get('cronjob_class');
             $cronJobInstance = new $cronJobClass($this->persistence, $entity->get('defaults') ?? []);
             $cronJobInstance->execute();

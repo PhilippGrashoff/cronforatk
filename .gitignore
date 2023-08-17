@@ -1,6 +1,5 @@
-/config_local.php
-/vendor/*
-/build/*
+vendor
+coverage
 .idea/*
 .phpunit.result.cache
-/coverage/*
+

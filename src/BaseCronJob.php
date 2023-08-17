@@ -7,6 +7,7 @@ namespace cronforatk;
 use Atk4\Core\DiContainerTrait;
 use Atk4\Data\Exception;
 use Atk4\Data\Persistence;
+use ReflectionClass;
 use stdClass;
 
 
@@ -60,7 +61,7 @@ abstract class BaseCronJob
     public static function getName(): string
     {
         if (empty(static::$name)) {
-            return (new \ReflectionClass(static::class))->getShortName();
+            return (new ReflectionClass(static::class))->getShortName();
         }
         return static::$name;
     }

@@ -205,11 +205,11 @@ class CronJobModel extends Model
         //Name and Description can be set freely. If it is not set, use values from BaseCronJob instance
         $this->onHook(
             Model::HOOK_BEFORE_SAVE,
-            function (self $cronJobEntity, bool $isUpdate) {
+            function (self $cronJobEntity) {
                 if (!$cronJobEntity->isDirty('cronjob_class')) {
                     return;
                 }
-
+                /** @var class-string<BaseCronJob> $className */
                 $className = $cronJobEntity->get('cronjob_class');
                 if (empty($cronJobEntity->get('name'))) {
                     $cronJobEntity->set('name', $className::getName());
