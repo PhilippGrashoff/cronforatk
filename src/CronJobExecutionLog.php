@@ -7,7 +7,6 @@ namespace cronforatk;
 use Atk4\Core\Exception;
 use Atk4\Data\Model;
 
-
 class CronJobExecutionLog extends Model
 {
 

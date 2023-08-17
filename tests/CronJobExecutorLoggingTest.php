@@ -198,6 +198,7 @@ class CronJobExecutorLoggingTest extends TestCase
     public function testLastExecutedSaved()
     {
         $persistence = $this->getSqliteTestPersistence();
+        $dateTime = new \DateTime();
         //this one should be executed
         $entity = $this->_getRecord(
             $persistence,
@@ -213,12 +214,12 @@ class CronJobExecutorLoggingTest extends TestCase
         $entity->reload();
 
         self::assertSame(
-            (new \DateTime())->format('d-m-Y H:i:s'),
-            $entity->get('last_executed')->modify('+1 Second')->format('d-m-Y H:i:s')
+            $dateTime->format('d-m-Y H:i:s'),
+            $entity->get('last_executed')->format('d-m-Y H:i:s')
         );
         self::assertSame(
-            (new \DateTime())->format('d-m-Y H:i:s'),
-            $this->getLastExecutionLog($entity)->get('execution_datetime')->modify('+1 Second')->format('d-m-Y H:i:s')
+            $dateTime->format('d-m-Y H:i:s'),
+            $this->getLastExecutionLog($entity)->get('execution_datetime')->format('d-m-Y H:i:s')
         );
     }
 
