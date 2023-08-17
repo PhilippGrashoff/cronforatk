@@ -207,18 +207,7 @@ class CronJobModel extends Model
             ]
         );
 
-
-        $this->addCalculatedField(
-            'schedule_info',
-            [
-                'expr' => function (self $record): string {
-                    return $record->getScheduleInfo();
-                },
-                'type' => 'string',
-                'caption' => 'Execution Interval',
-            ]
-        );
-
+        //Name and Description can be set freely. If it is not set, use values from BaseCronJob instance
         $this->onHook(
             Model::HOOK_BEFORE_SAVE,
             function (self $cronJobEntity, bool $isUpdate) {
@@ -227,74 +216,13 @@ class CronJobModel extends Model
                 }
 
                 $className = $cronJobEntity->get('cronjob_class');
-
-                $cronJobEntity->set('name', $className::getName());
-                $cronJobEntity->set('description', $className::getDescription());
+                if (empty($cronJobEntity->get('name'))) {
+                    $cronJobEntity->set('name', $className::getName());
+                }
+                if (empty($cronJobEntity->get('description'))) {
+                    $cronJobEntity->set('description', $className::getDescription());
+                }
             }
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getScheduleInfo(): string
-    {
-        if (!$this->get('is_active')) {
-            return '';
-        }
-        if (
-            $this->get('interval') == 'YEARLY'
-            && $this->get('date_yearly')
-            && $this->get('time_yearly')
-        ) {
-            return 'Jährlich am ' . $this->get('date_yearly')->format('m.Y')
-                . ' um ' . $this->get('time_yearly')->format('H:i');
-        }
-        if (
-            $this->get('interval') == 'MONTHLY'
-            && $this->get('day_monthly')
-            && $this->get('time_monthly')
-        ) {
-            return 'Monatlich am ' . $this->get('day_monthly')
-                . '. um ' . $this->get('time_monthly')->format('H:i');
-        }
-        if (
-            $this->get('interval') == 'WEEKLY'
-            && $this->get('weekday_weekly')
-            && $this->get('time_weekly')
-        ) {
-            return 'Wöchentlich am ' . GERMAN_WEEKDAYS[$this->get('weekday_weekly')]
-                . ' um ' . $this->get('time_weekly')->format('H:i');
-        }
-        if (
-            $this->get('interval') == 'DAILY'
-            && $this->get('time_daily')
-        ) {
-            return 'Täglich um ' . $this->get('time_daily')->format('H:i');
-        }
-        if (
-            $this->get('interval') == 'HOURLY'
-            && $this->get('minute_hourly')
-        ) {
-            return 'Stündlich zur ' . $this->get('minute_hourly') . '. Minute';
-        }
-        if (
-            $this->get('interval') == 'MINUTELY'
-            && $this->get('interval_minutely')
-        ) {
-            if ($this->get('interval_minutely') == 'EVERY_MINUTE') {
-                return 'Zu jeder Minute';
-            } elseif ($this->get('interval_minutely') == 'EVERY_FIFTH_MINUTE') {
-                return '5-Minütig um ' . (0 + $this->get('offset_minutely'))
-                    . ', ' . (5 + $this->get(
-                            'offset_minutely'
-                        )) . ', ...';
-            } elseif ($this->get('interval_minutely') == 'EVERY_FIFTEENTH_MINUTE') {
-                return 'Viertelstündlich um ' . (0 + $this->get('offset_minutely'))
-                    . ', ' . (15 + $this->get('offset_minutely')) . ', ...';
-            }
-        }
-
-        return '';
     }
 }
