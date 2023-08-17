@@ -35,6 +35,13 @@ class CronJobModel extends Model
         'EVERY_FIFTEENTH_MINUTE' => 'Every fifteenth minute'
     ];
 
+    /** @var array|string[] */
+    public static array $loggingOptions = [
+        'NO_LOGGING' => 'Do not log executions',
+        'ONLY_LOG_IF_LOG_OUTPUT' => 'Only log executions if an execution creates output',
+        'ALWAYS_LOG' => 'Always log executions'
+    ];
+
     protected function init(): void
     {
         parent::init();
@@ -168,6 +175,15 @@ class CronJobModel extends Model
                 'type' => 'integer',
                 'caption' => 'Shift for X Minutes (0-14)',
                 'default' => 0,
+            ]
+        );
+
+        $this->addField(
+            'logging',
+            [
+                'type' => 'string',
+                'values' => self::$loggingOptions,
+                'default' => 'ONLY_LOG_IF_LOG_OUTPUT'
             ]
         );
 

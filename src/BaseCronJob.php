@@ -7,6 +7,7 @@ namespace cronforatk;
 use Atk4\Core\DiContainerTrait;
 use Atk4\Data\Exception;
 use Atk4\Data\Persistence;
+use stdClass;
 
 
 /**
@@ -30,7 +31,7 @@ abstract class BaseCronJob
     /** @var Persistence */
     protected Persistence $persistence;
 
-    /** @var array<int, string> In here, the cronjob can log what it did on execution */
+    /** @var array<int, string|stdClass> In here, the cronjob can log what it did on execution */
     public array $executionLog = [];
 
     /**
@@ -70,5 +71,13 @@ abstract class BaseCronJob
     public static function getDescription(): string
     {
         return static::$description;
+    }
+
+    /**
+     * @return stdClass[]|string[]
+     */
+    public function getExecutionLog(): array
+    {
+        return $this->executionLog;
     }
 }

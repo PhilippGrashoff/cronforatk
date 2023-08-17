@@ -189,34 +189,42 @@ class CronJobExecutor
     }
 
     /**
-     * @param CronJobModel $cronJobEntity
+     * @param CronJobModel $entity
      * @return void
      * @throws \Atk4\Core\Exception
      * @throws Exception
      */
-    protected function executeCronJob(CronJobModel $cronJobEntity): void
+    protected function executeCronJob(CronJobModel $entity): void
     {
-        $cronJobExecutionLog = (new CronJobExecutionLog($this->persistence))->createEntity();
-        $cronJobExecutionLog->set('cronjob_id', $cronJobEntity->getId());
-        $cronJobExecutionLog->set('execution_datetime', new DateTime());
+        $executionLog = (new CronJobExecutionLog($this->persistence))->createEntity();
+        $executionLog->set('cronjob_id', $entity->getId());
+        $executionLog->set('execution_datetime', new DateTime());
         $startOfCron = microtime(true);
-
         try {
-            $cronJobClass = $cronJobEntity->get('cronjob_class');
-            $cronJobInstance = new $cronJobClass($this->persistence, $cronJobEntity->get('defaults'));
+            $cronJobClass = $entity->get('cronjob_class');
+            $cronJobInstance = new $cronJobClass($this->persistence, $entity->get('defaults') ?? []);
             $cronJobInstance->execute();
-            $cronJobExecutionLog->set('execution_successful', true);
-            $cronJobExecutionLog->set('execution_output', $cronJobInstance->getLastExecutionLog());
-            $this->reportSuccess($cronJobExecutionLog);
+            $executionLog->set('execution_successful', true);
+            $executionLog->set('execution_output', $cronJobInstance->getExecutionLog());
+            $this->reportSuccess($executionLog);
         } //catch any errors as more than one cron could be executed per minutely run
         catch (Throwable $e) {
-            $cronJobExecutionLog->set('execution_successful', false);
-            $cronJobExecutionLog->set('execution_output', [$e->getMessage()]);
-            $this->reportFailure($cronJobExecutionLog, $e);
+            $executionLog->set('execution_successful', false);
+            $executionLog->set('execution_output', [$e->getMessage()]);
+            $this->reportFailure($executionLog, $e);
         }
-        $cronJobExecutionLog->set('execution_duration', microtime(true) - $startOfCron);
-        $cronJobExecutionLog->save();
+        $executionLog->set('execution_duration', microtime(true) - $startOfCron);
+        if (
+            $entity->get('logging') === 'ALWAYS_LOG'
+            || (
+                $entity->get('logging') === 'ONLY_LOG_IF_LOG_OUTPUT'
+                && count($executionLog->get('execution_output')) > 0
+            )
+        ) {
+            $executionLog->save();
+        }
     }
+
 
     /**
      * This function can be implemented in child classes which extend this class in order you want some custom reporting

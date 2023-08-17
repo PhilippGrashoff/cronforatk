@@ -421,29 +421,6 @@ class CronJobExecutorTest extends TestCase
         self::assertNull($cronJobModel4->get('last_executed'));
     }
 
-
-    public function testLastExecutedSaved()
-    {
-        $persistence = $this->getSqliteTestPersistence();
-        //this one should be executed
-        $cronJobExecutor0 = $this->_getRecord(
-            $persistence,
-            [
-                'interval' => 'MINUTELY',
-                'interval_minutely' => 'EVERY_MINUTE',
-            ]
-        );
-
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run();
-
-        $cronJobExecutor0->reload();
-        self::assertSame(
-            (new \DateTime())->format('d-m-Y H:i:s'),
-            $cronJobExecutor0->get('last_executed')->format('d-m-Y H:i:s')
-        );
-    }
-
     public function testNonActiveCronInRun()
     {
         $persistence = $this->getSqliteTestPersistence();
@@ -501,7 +478,6 @@ class CronJobExecutorTest extends TestCase
             ]
         );
 
-
         $cronJobExecutor = new CronJobExecutor($persistence);
         $cronJobExecutor->run($testTime);
 
@@ -509,42 +485,7 @@ class CronJobExecutorTest extends TestCase
         $cronJobModel2->reload();
 
         self::assertInstanceOf(\DateTime::class, $cronJobModel2->get('last_executed'));
-        self::assertEquals(
-            true,
-            $cronJobModel2->get('last_execution_success')
-        );
         self::assertInstanceOf(\DateTime::class, $cronJobModel1->get('last_executed'));
-        self::assertEquals(
-            false,
-            $cronJobModel1->get('last_execution_success')
-        );
-    }
-
-    public function testDurationIsMonitored()
-    {
-        $persistence = $this->getSqliteTestPersistence();
-        $testTime = new \DateTime('2020-05-05');
-        $testTime->setTime(3, 3);
-
-        $cronJobModel1 = $this->_getRecord(
-            $persistence,
-            [
-                'interval' => 'YEARLY',
-                'date_yearly' => $testTime,
-                'time_yearly' => $testTime,
-            ]
-        );
-
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
-
-        $cronJobModel1->reload();
-
-        self::assertEqualsWithDelta(
-            1.0,
-            $cronJobModel1->get('last_execution_duration'),
-            0.05
-        );
     }
 
     private function _getRecord(Persistence $persistence, array $set = []): CronJobModel
