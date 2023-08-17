@@ -162,7 +162,7 @@ class CronJobExecutor
      */
     private function checkHourlyExecutionIsNow(CronJobModel $cronJobEntity): bool
     {
-        return $this->currentMinute !== $cronJobEntity->get('minute_hourly');
+        return $this->currentMinute === $cronJobEntity->get('minute_hourly');
     }
 
     /**

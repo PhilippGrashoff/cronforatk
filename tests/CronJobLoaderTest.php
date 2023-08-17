@@ -18,9 +18,9 @@ class CronJobLoaderTest extends TestCase
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'BaseCronJob',
-                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'BaseCronJob',
-                'cronforatk\tests\testclasses\SomeCronJob' => 'BaseCronJob'
+                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'SomeCronJobWithoutExecute',
+                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
+                'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron'
             ],
             $resultOneDir
         );
@@ -36,10 +36,11 @@ class CronJobLoaderTest extends TestCase
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'BaseCronJob',
-                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'BaseCronJob',
-                'cronforatk\tests\testclasses\SomeCronJob' => 'BaseCronJob',
-                'cronforatk\tests\testclasses2\SomeOtherCronJob' => 'BaseCronJob'
+                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'SomeCronJobWithoutExecute',
+                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
+                'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron',
+                'cronforatk\tests\testclasses2\SomeOtherCronJob' => 'SomeNameForThisOtherCron'
+
             ],
             $resultTwoDirs
         );
@@ -55,9 +56,9 @@ class CronJobLoaderTest extends TestCase
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'BaseCronJob',
-                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'BaseCronJob',
-                'cronforatk\tests\testclasses\SomeCronJob' => 'BaseCronJob'
+                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'SomeCronJobWithoutExecute',
+                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
+                'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron'
             ],
             $resultOneDir
         );

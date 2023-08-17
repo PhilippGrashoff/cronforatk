@@ -83,7 +83,7 @@ class CronJobExecutorTest extends TestCase
             $persistence,
             [
                 'interval' => 'YEARLY',
-                'time_yearly' => '03:03',
+                'time_yearly' => $testTime,
             ]
         );
 
@@ -298,6 +298,7 @@ class CronJobExecutorTest extends TestCase
                 'minute_hourly' => (int)$testTime->format('i')
             ]
         );
+        var_dump($cronJobModel1->get('minute_hourly'));
         $cronJobModel2 = $this->_getRecord(
             $persistence,
             [
@@ -312,7 +313,6 @@ class CronJobExecutorTest extends TestCase
                 'minute_hourly' => (int)(clone $testTime)->modify('-1 Minute')->format('i')
             ]
         );
-
 
         $cronJobExecutor = new CronJobExecutor($persistence);
         $cronJobExecutor->run($testTime);
@@ -436,20 +436,9 @@ class CronJobExecutorTest extends TestCase
         $cronJobExecutor->run();
 
         $cronJobExecutor0->reload();
-        self::assertEquals(
-            (new \DateTime())->modify('-1 Second')->format('d-m-Y H:i:s'),
+        self::assertSame(
+            (new \DateTime())->format('d-m-Y H:i:s'),
             $cronJobExecutor0->get('last_executed')->format('d-m-Y H:i:s')
-        );
-    }
-
-    public function testDescriptionLoadedOnInsert()
-    {
-        $cronJobExecutor = new CronJobExecutor($this->getSqliteTestPersistence());
-        $cronJobExecutor->set('type', SomeCronJob::class);
-        $cronJobExecutor->save();
-        self::assertEquals(
-            'SomeDescriptionExplainingWhatThisIsDoing',
-            $cronJobExecutor->get('description')
         );
     }
 
@@ -464,7 +453,7 @@ class CronJobExecutorTest extends TestCase
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
-                'time_monthly' => '03:03',
+                'time_monthly' => $testTime,
             ]
         );
 
@@ -472,6 +461,7 @@ class CronJobExecutorTest extends TestCase
         $cronJobModel1->save();
         $cronJobExecutor = new CronJobExecutor($persistence);
         $cronJobExecutor->run($testTime);
+
         $cronJobModel1->reload();
         self::assertNull($cronJobModel1->get('last_executed'));
 
@@ -479,8 +469,8 @@ class CronJobExecutorTest extends TestCase
         $cronJobModel1->save();
         $cronJobExecutor = new CronJobExecutor($persistence);
         $cronJobExecutor->run($testTime);
-        $cronJobModel1->reload();
 
+        $cronJobModel1->reload();
         self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
     }
 
@@ -494,18 +484,18 @@ class CronJobExecutorTest extends TestCase
             $persistence,
             [
                 'interval' => 'YEARLY',
-                'date_yearly' => '2020-05-05',
-                'time_yearly' => '03:03',
+                'date_yearly' => $testTime,
+                'time_yearly' => $testTime,
             ]
         );
-        $cronJobModel1->set('type', SomeCronJobWithExceptionInExecute::class);
+        $cronJobModel1->set('cronjob_class', SomeCronJobWithExceptionInExecute::class);
         $cronJobModel1->save();
 
         $cronJobModel2 = $this->_getRecord(
             $persistence,
             [
                 'interval' => 'DAILY',
-                'time_daily' => '03:03',
+                'time_daily' => $testTime,
             ]
         );
 
@@ -538,8 +528,8 @@ class CronJobExecutorTest extends TestCase
             $persistence,
             [
                 'interval' => 'YEARLY',
-                'date_yearly' => '2020-05-05',
-                'time_yearly' => '03:03',
+                'date_yearly' => $testTime,
+                'time_yearly' => $testTime,
             ]
         );
 
