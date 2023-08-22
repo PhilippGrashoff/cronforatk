@@ -1,4 +1,5 @@
 # cronforatk
+[![codecov](https://codecov.io/gh/PhilippGrashoff/cronforatk/branch/main/graph/badge.svg)](https://codecov.io/gh/PhilippGrashoff/cronforatk)
 
 This repository is an extension for atk4/data. It enables you to easily set and store the execution 
 of many different cronjobs. Many different schedule options from yearly to minutely are available.
