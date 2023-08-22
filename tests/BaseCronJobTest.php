@@ -7,18 +7,10 @@ namespace cronforatk\tests;
 use atkextendedtestcase\TestCase;
 use cronforatk\BaseCronJob;
 use cronforatk\tests\testclasses\SomeCronJob;
-use cronforatk\tests\testclasses\SomeCronJobWithoutExecute;
+use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
 
 class BaseCronJobTest extends TestCase
 {
-
-    public function testExceptionNoExecuteImplementedInDescendant(): void
-    {
-        $persistence = $this->getSqliteTestPersistence();
-        $cron = new SomeCronJobWithoutExecute($persistence);
-        self::expectExceptionMessage('execute needs to ne implemented in descendants of cronforatk\BaseCronJob');
-        $cron->execute();
-    }
 
     public function testGetName(): void
     {
@@ -28,8 +20,8 @@ class BaseCronJobTest extends TestCase
         );
 
         self::assertSame(
-            'SomeCronJobWithoutExecute',
-            SomeCronJobWithoutExecute::getName()
+            'SomeCronJobWithExceptionInExecute',
+            SomeCronJobWithExceptionInExecute::getName()
         );
     }
 

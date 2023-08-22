@@ -38,7 +38,7 @@ class Scheduler extends Model
     /** @var array|string[] */
     public static array $loggingOptions = [
         'NO_LOGGING' => 'Do not log executions',
-        'ONLY_LOG_IF_LOG_OUTPUT' => 'Only log executions if an execution creates output',
+        'ONLY_LOG_IF_OUTPUT' => 'Only log executions if an execution creates output',
         'ALWAYS_LOG' => 'Always log executions'
     ];
 
@@ -183,7 +183,7 @@ class Scheduler extends Model
             [
                 'type' => 'string',
                 'values' => self::$loggingOptions,
-                'default' => 'ONLY_LOG_IF_LOG_OUTPUT'
+                'default' => 'ONLY_LOG_IF_OUTPUT'
             ]
         );
 

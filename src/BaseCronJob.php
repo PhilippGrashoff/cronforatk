@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace cronforatk;
 
 use Atk4\Core\DiContainerTrait;
-use Atk4\Data\Exception;
 use Atk4\Data\Persistence;
 use ReflectionClass;
 use stdClass;
@@ -33,7 +32,7 @@ abstract class BaseCronJob
     protected Persistence $persistence;
 
     /** @var array<int, string|stdClass> In here, the cronjob can log what it did on execution */
-    public array $executionLog = [];
+    protected array $executionLog = [];
 
     /**
      * @param Persistence $persistence
@@ -46,14 +45,10 @@ abstract class BaseCronJob
     }
 
     /**
-     * Implementation in descendants should throw exception on error
+     * Needs to be implemented in descendants of BaseCronJob. It is designed to throw exceptions if errors
      * @return void
-     * @throws Exception
      */
-    public function execute(): void
-    {
-        throw new Exception('execute needs to ne implemented in descendants of ' . __CLASS__);
-    }
+    abstract public function execute(): void;
 
     /**
      * @return string

@@ -18,7 +18,6 @@ class CronJobLoaderTest extends TestCase
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'SomeCronJobWithoutExecute',
                 'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
                 'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron'
             ],
@@ -36,7 +35,6 @@ class CronJobLoaderTest extends TestCase
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'SomeCronJobWithoutExecute',
                 'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
                 'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron',
                 'cronforatk\tests\testclasses2\SomeOtherCronJob' => 'SomeNameForThisOtherCron'
@@ -56,7 +54,6 @@ class CronJobLoaderTest extends TestCase
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithoutExecute' => 'SomeCronJobWithoutExecute',
                 'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
                 'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron'
             ],

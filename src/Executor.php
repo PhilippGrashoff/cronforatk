@@ -219,7 +219,7 @@ class Executor
         if (
             $entity->get('logging') === 'ALWAYS_LOG'
             || (
-                $entity->get('logging') === 'ONLY_LOG_IF_LOG_OUTPUT'
+                $entity->get('logging') === 'ONLY_LOG_IF_OUTPUT'
                 && count($executionLog->get('execution_output')) > 0
             )
         ) {
