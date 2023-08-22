@@ -300,7 +300,6 @@ class ExecutorTest extends TestCase
                 'minute_hourly' => (int)$testTime->format('i')
             ]
         );
-        var_dump($scheduler1->get('minute_hourly'));
         $scheduler2 = $this->_getScheduler(
             $persistence,
             [
