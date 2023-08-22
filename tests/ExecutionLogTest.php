@@ -2,22 +2,23 @@
 
 declare(strict_types=1);
 
+namespace cronforatk\tests;
 
 use Atk4\Data\Persistence;
 use atkextendedtestcase\TestCase;
-use cronforatk\CronJobExecutionLog;
-use cronforatk\CronJobExecutor;
-use cronforatk\CronJobModel;
+use cronforatk\ExecutionLog;
+use cronforatk\Executor;
+use cronforatk\Scheduler;
 use cronforatk\tests\testclasses\SomeCronJob;
 use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
 use cronforatk\tests\testclasses2\SomeOtherCronJob;
 
-class CronJobExecutorLoggingTest extends TestCase
+class ExecutionLogTest extends TestCase
 {
 
     protected array $sqlitePersistenceModels = [
-        CronJobModel::class,
-        CronJobExecutionLog::class
+        Scheduler::class,
+        ExecutionLog::class
     ];
 
     public function testDurationIsLogged()
@@ -26,7 +27,7 @@ class CronJobExecutorLoggingTest extends TestCase
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -35,14 +36,14 @@ class CronJobExecutorLoggingTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
+        $scheduler1->reload();
 
         self::assertEqualsWithDelta(
             1.0,
-            $this->getLastExecutionLog($cronJobModel1)->get('execution_duration'),
+            $this->getLastExecutionLog($scheduler1)->get('execution_duration'),
             0.05
         );
     }
@@ -53,7 +54,7 @@ class CronJobExecutorLoggingTest extends TestCase
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -63,7 +64,7 @@ class CronJobExecutorLoggingTest extends TestCase
         );
 
 
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'cronjob_class' => SomeCronJobWithExceptionInExecute::class,
@@ -74,14 +75,14 @@ class CronJobExecutorLoggingTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
         self::assertTrue(
-            $this->getLastExecutionLog($cronJobModel1)->get('execution_successful')
+            $this->getLastExecutionLog($scheduler1)->get('execution_successful')
         );
         self::assertFalse(
-            $this->getLastExecutionLog($cronJobModel2)->get('execution_successful')
+            $this->getLastExecutionLog($scheduler2)->get('execution_successful')
         );
     }
 
@@ -91,7 +92,7 @@ class CronJobExecutorLoggingTest extends TestCase
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -101,12 +102,12 @@ class CronJobExecutorLoggingTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
         self::assertSame(
             0,
-            (int)(new CronJobExecutionLog($persistence))->action('count')->getOne()
+            (int)(new ExecutionLog($persistence))->action('count')->getOne()
         );
     }
 
@@ -116,7 +117,7 @@ class CronJobExecutorLoggingTest extends TestCase
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -125,7 +126,7 @@ class CronJobExecutorLoggingTest extends TestCase
             ]
         );
         //does not produce any output, should not produce log
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'cronjob_class' => SomeOtherCronJob::class,
@@ -135,20 +136,20 @@ class CronJobExecutorLoggingTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
         self::assertSame(
             1,
-            (int)(new CronJobExecutionLog($persistence))->action('count')->getOne()
+            (int)(new ExecutionLog($persistence))->action('count')->getOne()
         );
         self::assertSame(
             1,
-            (int)$cronJobModel1->ref(CronJobExecutionLog::class)->action('count')->getOne()
+            (int)$scheduler1->ref(ExecutionLog::class)->action('count')->getOne()
         );
         self::assertSame(
             0,
-            (int)$cronJobModel2->ref(CronJobExecutionLog::class)->action('count')->getOne()
+            (int)$scheduler2->ref(ExecutionLog::class)->action('count')->getOne()
         );
     }
 
@@ -158,7 +159,7 @@ class CronJobExecutorLoggingTest extends TestCase
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -167,7 +168,7 @@ class CronJobExecutorLoggingTest extends TestCase
             ]
         );
         //does not produce any output, should not produce log
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'cronjob_class' => SomeOtherCronJob::class,
@@ -178,20 +179,20 @@ class CronJobExecutorLoggingTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
         self::assertSame(
             2,
-            (int)(new CronJobExecutionLog($persistence))->action('count')->getOne()
+            (int)(new ExecutionLog($persistence))->action('count')->getOne()
         );
         self::assertSame(
             1,
-            (int)$cronJobModel1->ref(CronJobExecutionLog::class)->action('count')->getOne()
+            (int)$scheduler1->ref(ExecutionLog::class)->action('count')->getOne()
         );
         self::assertSame(
             1,
-            (int)$cronJobModel2->ref(CronJobExecutionLog::class)->action('count')->getOne()
+            (int)$scheduler2->ref(ExecutionLog::class)->action('count')->getOne()
         );
     }
 
@@ -200,7 +201,7 @@ class CronJobExecutorLoggingTest extends TestCase
         $persistence = $this->getSqliteTestPersistence();
         $dateTime = new \DateTime();
         //this one should be executed
-        $entity = $this->_getRecord(
+        $entity = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -208,8 +209,8 @@ class CronJobExecutorLoggingTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run();
+        $executor = new Executor($persistence);
+        $executor->run();
 
         $entity->reload();
 
@@ -223,9 +224,9 @@ class CronJobExecutorLoggingTest extends TestCase
         );
     }
 
-    private function _getRecord(Persistence $persistence, array $set = []): CronJobModel
+    private function _getScheduler(Persistence $persistence, array $set = []): Scheduler
     {
-        $entity = (new CronJobModel($persistence))->createEntity();
+        $entity = (new Scheduler($persistence))->createEntity();
 
         $entity->set('cronjob_class', SomeCronJob::class);
         $entity->set('is_active', 1);
@@ -236,9 +237,9 @@ class CronJobExecutorLoggingTest extends TestCase
         return $entity;
     }
 
-    private function getLastExecutionLog(CronJobModel $cronJobModel): CronJobExecutionLog
+    private function getLastExecutionLog(Scheduler $scheduler): ExecutionLog
     {
-        $executionLog = $cronJobModel->ref(CronJobExecutionLog::class);
+        $executionLog = $scheduler->ref(ExecutionLog::class);
         $executionLog = $executionLog->loadAny();
 
         return $executionLog;

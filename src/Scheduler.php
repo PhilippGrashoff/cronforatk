@@ -7,7 +7,7 @@ namespace cronforatk;
 use Atk4\Data\Model;
 
 
-class CronJobModel extends Model
+class Scheduler extends Model
 {
 
     public $table = 'cronjob';
@@ -188,13 +188,13 @@ class CronJobModel extends Model
         );
 
         $this->hasMany(
-            CronJobExecutionLog::class,
-            ['model' => [CronJobExecutionLog::class], 'theirField' => 'cronjob_id']
+            ExecutionLog::class,
+            ['model' => [ExecutionLog::class], 'theirField' => 'cronjob_id']
         );
         $this->addExpression(
             'last_executed',
             [
-                'expr' => $this->refLink(CronJobExecutionLog::class)
+                'expr' => $this->refLink(ExecutionLog::class)
                     ->action('field', ['execution_datetime'])
                     ->limit(1),
                 'type' => 'datetime',

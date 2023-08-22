@@ -6,18 +6,18 @@ namespace cronforatk\tests;
 
 use Atk4\Data\Persistence;
 use atkextendedtestcase\TestCase;
-use cronforatk\CronJobExecutionLog;
-use cronforatk\CronJobExecutor;
-use cronforatk\CronJobModel;
+use cronforatk\ExecutionLog;
+use cronforatk\Executor;
+use cronforatk\Scheduler;
 use cronforatk\tests\testclasses\SomeCronJob;
 use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
 
-class CronJobExecutorTest extends TestCase
+class ExecutorTest extends TestCase
 {
 
     protected array $sqlitePersistenceModels = [
-        CronJobModel::class,
-        CronJobExecutionLog::class
+        Scheduler::class,
+        ExecutionLog::class
     ];
 
 
@@ -27,7 +27,7 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime('2020-11-05');
         $testTime->setTime(3, 11);
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -35,7 +35,7 @@ class CronJobExecutorTest extends TestCase
                 'time_yearly' => $testTime
             ]
         );
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -43,7 +43,7 @@ class CronJobExecutorTest extends TestCase
                 'time_yearly' => (clone $testTime)->modify('-1 Minute'),
             ]
         );
-        $cronJobModel3 = $this->_getRecord(
+        $scheduler3 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -51,7 +51,7 @@ class CronJobExecutorTest extends TestCase
                 'time_yearly' => (clone $testTime)->modify('+1 Minute'),
             ]
         );
-        $cronJobModel4 = $this->_getRecord(
+        $scheduler4 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -61,18 +61,18 @@ class CronJobExecutorTest extends TestCase
         );
 
         //only one should be executed
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        $cronJobModel2->reload();
-        $cronJobModel3->reload();
-        $cronJobModel4->reload();
+        $scheduler1->reload();
+        $scheduler2->reload();
+        $scheduler3->reload();
+        $scheduler4->reload();
 
-        self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
-        self::assertNull($cronJobModel2->get('last_executed'));
-        self::assertNull($cronJobModel3->get('last_executed'));
-        self::assertNull($cronJobModel4->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
+        self::assertNull($scheduler2->get('last_executed'));
+        self::assertNull($scheduler3->get('last_executed'));
+        self::assertNull($scheduler4->get('last_executed'));
     }
 
     public function testSkipYearlyIfNoDateYearlySet()
@@ -81,7 +81,7 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -89,11 +89,11 @@ class CronJobExecutorTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        self::assertNull($cronJobModel1->get('last_executed'));
+        $scheduler1->reload();
+        self::assertNull($scheduler1->get('last_executed'));
     }
 
     public function testRunMonthly(): void
@@ -102,7 +102,7 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime('2020-08-05');
         $testTime->setTime(3, 14);
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -110,7 +110,7 @@ class CronJobExecutorTest extends TestCase
                 'time_monthly' => $testTime,
             ]
         );
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -118,7 +118,7 @@ class CronJobExecutorTest extends TestCase
                 'time_monthly' => (clone $testTime)->modify('-1 Minute'),
             ]
         );
-        $cronJobModel3 = $this->_getRecord(
+        $scheduler3 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -126,7 +126,7 @@ class CronJobExecutorTest extends TestCase
                 'time_monthly' => (clone $testTime)->modify('+1 Minute'),
             ]
         );
-        $cronJobModel4 = $this->_getRecord(
+        $scheduler4 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -134,7 +134,7 @@ class CronJobExecutorTest extends TestCase
                 'time_monthly' => $testTime
             ]
         );
-        $cronJobModel5 = $this->_getRecord(
+        $scheduler5 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -144,20 +144,20 @@ class CronJobExecutorTest extends TestCase
         );
 
         //only one should be executed
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        $cronJobModel2->reload();
-        $cronJobModel3->reload();
-        $cronJobModel4->reload();
-        $cronJobModel5->reload();
+        $scheduler1->reload();
+        $scheduler2->reload();
+        $scheduler3->reload();
+        $scheduler4->reload();
+        $scheduler5->reload();
 
-        self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
-        self::assertNull($cronJobModel2->get('last_executed'));
-        self::assertNull($cronJobModel3->get('last_executed'));
-        self::assertNull($cronJobModel4->get('last_executed'));
-        self::assertNull($cronJobModel5->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
+        self::assertNull($scheduler2->get('last_executed'));
+        self::assertNull($scheduler3->get('last_executed'));
+        self::assertNull($scheduler4->get('last_executed'));
+        self::assertNull($scheduler5->get('last_executed'));
     }
 
     public function testSkipMonthlyIfNoTimeSet()
@@ -166,7 +166,7 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -174,11 +174,11 @@ class CronJobExecutorTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        self::assertNull($cronJobModel1->get('last_executed'));
+        $scheduler1->reload();
+        self::assertNull($scheduler1->get('last_executed'));
     }
 
     public function testRunWeekly(): void
@@ -187,7 +187,7 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime('2020-06-03');
         $testTime->setTime(4, 34);
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -195,7 +195,7 @@ class CronJobExecutorTest extends TestCase
                 'time_weekly' => $testTime,
             ]
         );
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -203,7 +203,7 @@ class CronJobExecutorTest extends TestCase
                 'time_weekly' => (clone $testTime)->modify('-1 Minute'),
             ]
         );
-        $cronJobModel3 = $this->_getRecord(
+        $scheduler3 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -211,7 +211,7 @@ class CronJobExecutorTest extends TestCase
                 'time_weekly' => (clone $testTime)->modify('+1 Minute'),
             ]
         );
-        $cronJobModel4 = $this->_getRecord(
+        $scheduler4 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -219,7 +219,7 @@ class CronJobExecutorTest extends TestCase
                 'time_weekly' => $testTime,
             ]
         );
-        $cronJobModel5 = $this->_getRecord(
+        $scheduler5 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -229,20 +229,20 @@ class CronJobExecutorTest extends TestCase
         );
 
         //only one should be executed
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        $cronJobModel2->reload();
-        $cronJobModel3->reload();
-        $cronJobModel4->reload();
-        $cronJobModel5->reload();
+        $scheduler1->reload();
+        $scheduler2->reload();
+        $scheduler3->reload();
+        $scheduler4->reload();
+        $scheduler5->reload();
 
-        self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
-        self::assertNull($cronJobModel2->get('last_executed'));
-        self::assertNull($cronJobModel3->get('last_executed'));
-        self::assertNull($cronJobModel4->get('last_executed'));
-        self::assertNull($cronJobModel5->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
+        self::assertNull($scheduler2->get('last_executed'));
+        self::assertNull($scheduler3->get('last_executed'));
+        self::assertNull($scheduler4->get('last_executed'));
+        self::assertNull($scheduler5->get('last_executed'));
     }
 
     public function testRunDaily(): void
@@ -252,21 +252,21 @@ class CronJobExecutorTest extends TestCase
         $testTime->setTime(15, 3);
 
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'DAILY',
                 'time_daily' => $testTime,
             ]
         );
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'DAILY',
                 'time_daily' => (clone $testTime)->modify('-1 Minute')
             ]
         );
-        $cronJobModel3 = $this->_getRecord(
+        $scheduler3 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'DAILY',
@@ -275,16 +275,16 @@ class CronJobExecutorTest extends TestCase
         );
 
         //only one should be executed
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        $cronJobModel2->reload();
-        $cronJobModel3->reload();
+        $scheduler1->reload();
+        $scheduler2->reload();
+        $scheduler3->reload();
 
-        self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
-        self::assertNull($cronJobModel2->get('last_executed'));
-        self::assertNull($cronJobModel3->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
+        self::assertNull($scheduler2->get('last_executed'));
+        self::assertNull($scheduler3->get('last_executed'));
     }
 
     public function testRunHourly()
@@ -293,22 +293,22 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime();
         $testTime->setTime(14, 35);
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => (int)$testTime->format('i')
             ]
         );
-        var_dump($cronJobModel1->get('minute_hourly'));
-        $cronJobModel2 = $this->_getRecord(
+        var_dump($scheduler1->get('minute_hourly'));
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => (int)(clone $testTime)->modify('+1 Minute')->format('i')
             ]
         );
-        $cronJobModel3 = $this->_getRecord(
+        $scheduler3 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'HOURLY',
@@ -316,16 +316,16 @@ class CronJobExecutorTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        $cronJobModel2->reload();
-        $cronJobModel3->reload();
+        $scheduler1->reload();
+        $scheduler2->reload();
+        $scheduler3->reload();
 
-        self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
-        self::assertNull($cronJobModel2->get('last_executed'));
-        self::assertNull($cronJobModel3->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
+        self::assertNull($scheduler2->get('last_executed'));
+        self::assertNull($scheduler3->get('last_executed'));
     }
 
     public function testRunMinutely()
@@ -334,21 +334,21 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime();
         $testTime->setTime(3, 16);
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_MINUTE',
             ]
         );
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
-        $cronJobModel3 = $this->_getRecord(
+        $scheduler3 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -356,16 +356,16 @@ class CronJobExecutorTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        $cronJobModel2->reload();
-        $cronJobModel3->reload();
+        $scheduler1->reload();
+        $scheduler2->reload();
+        $scheduler3->reload();
 
-        self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
-        self::assertNull($cronJobModel2->get('last_executed'));
-        self::assertNull($cronJobModel3->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
+        self::assertNull($scheduler2->get('last_executed'));
+        self::assertNull($scheduler3->get('last_executed'));
     }
 
     public function testRunMinutelyOffset()
@@ -375,7 +375,7 @@ class CronJobExecutorTest extends TestCase
         $testTime->setTime(3, 18);
 
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -384,7 +384,7 @@ class CronJobExecutorTest extends TestCase
             ]
         );
         //this one should be executed, too
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -392,14 +392,14 @@ class CronJobExecutorTest extends TestCase
                 'offset_minutely' => 3,
             ]
         );
-        $cronJobModel3 = $this->_getRecord(
+        $scheduler3 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
-        $cronJobModel4 = $this->_getRecord(
+        $scheduler4 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -407,18 +407,18 @@ class CronJobExecutorTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        $cronJobModel2->reload();
-        $cronJobModel3->reload();
-        $cronJobModel4->reload();
+        $scheduler1->reload();
+        $scheduler2->reload();
+        $scheduler3->reload();
+        $scheduler4->reload();
 
-        self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
-        self::assertInstanceOf(\Datetime::class, $cronJobModel2->get('last_executed'));
-        self::assertNull($cronJobModel3->get('last_executed'));
-        self::assertNull($cronJobModel4->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
+        self::assertInstanceOf(\Datetime::class, $scheduler2->get('last_executed'));
+        self::assertNull($scheduler3->get('last_executed'));
+        self::assertNull($scheduler4->get('last_executed'));
     }
 
     public function testNonActiveCronInRun()
@@ -427,7 +427,7 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -436,21 +436,21 @@ class CronJobExecutorTest extends TestCase
             ]
         );
 
-        $cronJobModel1->set('is_active', 0);
-        $cronJobModel1->save();
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $scheduler1->set('is_active', 0);
+        $scheduler1->save();
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        self::assertNull($cronJobModel1->get('last_executed'));
+        $scheduler1->reload();
+        self::assertNull($scheduler1->get('last_executed'));
 
-        $cronJobModel1->set('is_active', 1);
-        $cronJobModel1->save();
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $scheduler1->set('is_active', 1);
+        $scheduler1->save();
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        self::assertInstanceOf(\Datetime::class, $cronJobModel1->get('last_executed'));
+        $scheduler1->reload();
+        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
     }
 
     public function testExceptionInExecuteDoesNotStopExecutionOfOthers()
@@ -459,7 +459,7 @@ class CronJobExecutorTest extends TestCase
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 
-        $cronJobModel1 = $this->_getRecord(
+        $scheduler1 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -467,10 +467,10 @@ class CronJobExecutorTest extends TestCase
                 'time_yearly' => $testTime,
             ]
         );
-        $cronJobModel1->set('cronjob_class', SomeCronJobWithExceptionInExecute::class);
-        $cronJobModel1->save();
+        $scheduler1->set('cronjob_class', SomeCronJobWithExceptionInExecute::class);
+        $scheduler1->save();
 
-        $cronJobModel2 = $this->_getRecord(
+        $scheduler2 = $this->_getScheduler(
             $persistence,
             [
                 'interval' => 'DAILY',
@@ -478,26 +478,26 @@ class CronJobExecutorTest extends TestCase
             ]
         );
 
-        $cronJobExecutor = new CronJobExecutor($persistence);
-        $cronJobExecutor->run($testTime);
+        $executor = new Executor($persistence);
+        $executor->run($testTime);
 
-        $cronJobModel1->reload();
-        $cronJobModel2->reload();
+        $scheduler1->reload();
+        $scheduler2->reload();
 
-        self::assertInstanceOf(\DateTime::class, $cronJobModel2->get('last_executed'));
-        self::assertInstanceOf(\DateTime::class, $cronJobModel1->get('last_executed'));
+        self::assertInstanceOf(\DateTime::class, $scheduler2->get('last_executed'));
+        self::assertInstanceOf(\DateTime::class, $scheduler1->get('last_executed'));
     }
 
-    private function _getRecord(Persistence $persistence, array $set = []): CronJobModel
+    private function _getScheduler(Persistence $persistence, array $set = []): Scheduler
     {
-        $cronJobModel = (new CronJobModel($persistence))->createEntity();
+        $scheduler= (new Scheduler($persistence))->createEntity();
 
-        $cronJobModel->set('cronjob_class', SomeCronJob::class);
-        $cronJobModel->set('is_active', 1);
-        $cronJobModel->setMulti($set);
+        $scheduler->set('cronjob_class', SomeCronJob::class);
+        $scheduler->set('is_active', 1);
+        $scheduler->setMulti($set);
 
-        $cronJobModel->save();
+        $scheduler->save();
 
-        return $cronJobModel;
+        return $scheduler;
     }
 }

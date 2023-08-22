@@ -7,7 +7,7 @@ namespace cronforatk;
 use Atk4\Core\Exception;
 use Atk4\Data\Model;
 
-class CronJobExecutionLog extends Model
+class ExecutionLog extends Model
 {
 
     public $table = 'cronjob_execution_log';
@@ -55,7 +55,7 @@ class CronJobExecutionLog extends Model
             ]
         );
 
-        $this->hasOne('cronjob_id', ['model' => [CronJobModel::class]]);
+        $this->hasOne('cronjob_id', ['model' => [Scheduler::class]]);
         $this->setOrder(['execution_datetime' => 'desc']);
     }
 }

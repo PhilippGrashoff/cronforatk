@@ -5,8 +5,8 @@ of many different cronjobs. Many different schedule options from yearly to minut
 The logic of these cronjobs has to be implemented separately.
 
 The repository consists of these classes:
-* BaseCronJob: This is a base for all real cronjobs
-* CronJobExecutor: This class contains all the logic to decide when which cronjob should be executed.
-* CronJobModel: This is used to persist each wanted execution. It contains the info which cronjob should be executed when.
-* CronJobloader: This is a small helper. As all Cronjobs are stored as PHP classes, this class checks given directories for available cronjob implementations.
-* CronJobExecutionLog: In here, execution results are logged. If execution results should be logged can be defined per CronJobModel.
+* BaseCronJob: This is a base for all real cronjobs. The actual logic for a cronjob is implemented in a class extending BaseCronJob.
+* Scheduler: This is used to persist each wanted execution. It contains the info which BaseCronJob child should be executed when.
+* Executor: This class contains all the logic to decide when which Scheduler (and hence the corresponding BaseCronJob child) should be executed.
+* ExecutionLog: In here, execution results are logged. If execution results should be logged can be defined per CronJobModel.
+* CronJobLoader: This is a small helper. As all Cronjobs are stored as PHP classes, this class checks given directories for available BaseCronJob implementations.
