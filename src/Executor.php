@@ -198,7 +198,7 @@ class Executor
     protected function executeCronJob(Scheduler $entity): void
     {
         $executionLog = (new ExecutionLog($this->persistence))->createEntity();
-        $executionLog->set('cronjob_id', $entity->getId());
+        $executionLog->set('scheduler_id', $entity->getId());
         $executionLog->set('execution_datetime', new DateTime());
         $startOfCron = microtime(true);
         try {

@@ -10,7 +10,7 @@ use Atk4\Data\Model;
 class ExecutionLog extends Model
 {
 
-    public $table = 'cronjob_execution_log';
+    public $table = 'execution_log';
 
     //no reload needed as there are no expressions in this model. Saves Performance
     public bool $reloadAfterSave = false;
@@ -55,7 +55,7 @@ class ExecutionLog extends Model
             ]
         );
 
-        $this->hasOne('cronjob_id', ['model' => [Scheduler::class]]);
+        $this->hasOne('scheduler_id', ['model' => [Scheduler::class]]);
         $this->setOrder(['execution_datetime' => 'desc']);
     }
 }

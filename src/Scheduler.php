@@ -10,7 +10,7 @@ use Atk4\Data\Model;
 class Scheduler extends Model
 {
 
-    public $table = 'cronjob';
+    public $table = 'scheduler';
 
     /** @var array<string, class-string>
      * path(es) to  folders where  Cronjob php Files are located
@@ -189,7 +189,7 @@ class Scheduler extends Model
 
         $this->hasMany(
             ExecutionLog::class,
-            ['model' => [ExecutionLog::class], 'theirField' => 'cronjob_id']
+            ['model' => [ExecutionLog::class], 'theirField' => 'scheduler_id']
         );
         $this->addExpression(
             'last_executed',
