@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace cronforatk\tests\testclasses2;
+namespace PhilippR\Atk4\Cron\Tests\Testclasses2;
 
-use cronforatk\BaseCronJob;
+use PhilippR\Atk4\Cron\BaseCronJob;
 
 
 class SomeOtherCronJob extends BaseCronJob

@@ -1,14 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace cronforatk;
+namespace PhilippR\Atk4\Cron;
 
 use Atk4\Core\DiContainerTrait;
 use Atk4\Data\Persistence;
 use ReflectionClass;
 use stdClass;
-
 
 /**
  * This class is meant as a Base to extend from for all Cronjobs.

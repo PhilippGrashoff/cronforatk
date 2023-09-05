@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace cronforatk\tests\testclasses;
+namespace PhilippR\Atk4\Cron\Tests\Testclasses;
 
 use Atk4\Data\Model;
 

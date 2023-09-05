@@ -1,12 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace cronforatk;
+namespace PhilippR\Atk4\Cron;
 
 use DirectoryIterator;
 use ReflectionClass;
-
 
 class CronJobLoader
 {

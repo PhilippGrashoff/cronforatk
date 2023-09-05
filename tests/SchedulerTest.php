@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace cronforatk\tests;
+namespace PhilippR\Atk4\Cron\Tests;
 
 use atkextendedtestcase\TestCase;
-use cronforatk\Scheduler;
-use cronforatk\tests\testclasses\SomeCronJob;
+use PhilippR\Atk4\Cron\ExecutionLog;
+use PhilippR\Atk4\Cron\Scheduler;
+use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob;
 
 class SchedulerTest extends TestCase
 {
 
     protected array $sqlitePersistenceModels = [
         Scheduler::class,
-        \cronforatk\ExecutionLog::class
+        ExecutionLog::class
     ];
 
     public function testNameAndDescriptionLoadedFromBaseCronJob()

@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-namespace cronforatk\tests;
+namespace PhilippR\Atk4\Cron\Tests;
 
-use Atk4\Data\Persistence;
 use atkextendedtestcase\TestCase;
-use cronforatk\ExecutionLog;
-use cronforatk\Executor;
-use cronforatk\Scheduler;
-use cronforatk\tests\testclasses\SomeCronJob;
-use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
-use cronforatk\tests\testclasses2\SomeOtherCronJob;
+use PhilippR\Atk4\Cron\ExecutionLog;
+use PhilippR\Atk4\Cron\Executor;
+use PhilippR\Atk4\Cron\Scheduler;
+use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute;
+use PhilippR\Atk4\Cron\Tests\Testclasses2\SomeOtherCronJob;
 
 class ExecutionLogTest extends TestCase
 {

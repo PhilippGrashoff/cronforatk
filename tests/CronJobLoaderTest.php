@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace cronforatk\tests;
+namespace PhilippR\Atk4\Cron\Tests;
+
 
 use atkextendedtestcase\TestCase;
-use cronforatk\CronJobLoader;
+use PhilippR\Atk4\Cron\CronJobLoader;
 
 class CronJobLoaderTest extends TestCase
 {
@@ -13,13 +14,13 @@ class CronJobLoaderTest extends TestCase
     public function testLoadAvailableCronJobs(): void
     {
         $resultOneDir = CronJobLoader::getAvailableCronJobs(
-            [__DIR__ . '/testclasses' => 'cronforatk\\tests\\testclasses']
+            [__DIR__ . '/Testclasses' => 'PhilippR\\Atk4\\Cron\\Tests\\Testclasses']
 
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
-                'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron'
+                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
+                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob' => 'SomeNameForThisCron'
             ],
             $resultOneDir
         );
@@ -29,15 +30,15 @@ class CronJobLoaderTest extends TestCase
     {
         $resultTwoDirs = CronJobLoader::getAvailableCronJobs(
             [
-                __DIR__ . '/testclasses' => 'cronforatk\\tests\\testclasses',
-                __DIR__ . '/testclasses2' => 'cronforatk\\tests\\testclasses2'
+                __DIR__ . '/Testclasses' => 'PhilippR\\Atk4\\Cron\\Tests\\Testclasses',
+                __DIR__ . '/Testclasses2' => 'PhilippR\\Atk4\\Cron\\Tests\\Testclasses2'
             ]
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
-                'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron',
-                'cronforatk\tests\testclasses2\SomeOtherCronJob' => 'SomeNameForThisOtherCron'
+                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
+                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob' => 'SomeNameForThisCron',
+                'PhilippR\Atk4\Cron\Tests\Testclasses2\SomeOtherCronJob' => 'SomeNameForThisOtherCron'
 
             ],
             $resultTwoDirs
@@ -48,14 +49,14 @@ class CronJobLoaderTest extends TestCase
     {
         $resultOneDir = CronJobLoader::getAvailableCronJobs(
             [
-                __DIR__ . '/testclasses' => 'cronforatk\\tests\\testclasses',
+                __DIR__ . '/Testclasses' => 'PhilippR\\Atk4\\Cron\\Tests\\Testclasses',
                 'some/non/existant/path' => 'PMRAtk\\Data\\Cron',
             ]
         );
         self::assertSame(
             [
-                'cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
-                'cronforatk\tests\testclasses\SomeCronJob' => 'SomeNameForThisCron'
+                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
+                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob' => 'SomeNameForThisCron'
             ],
             $resultOneDir
         );

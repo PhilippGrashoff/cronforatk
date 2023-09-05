@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace cronforatk\docs;
+namespace PhilippR\Atk4\Cron\docs;
 
 use cronforatk\BaseCronJob;
 

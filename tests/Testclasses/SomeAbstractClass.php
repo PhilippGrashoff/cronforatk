@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace cronforatk\tests\testclasses;
+namespace PhilippR\Atk4\Cron\Tests\Testclasses;
 
-use cronforatk\BaseCronJob;
-
+use PhilippR\Atk4\Cron\BaseCronJob;
 
 abstract class SomeAbstractClass extends BaseCronJob
 {

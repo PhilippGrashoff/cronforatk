@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace cronforatk\tests;
+namespace PhilippR\Atk4\Cron\Tests;
 
 use atkextendedtestcase\TestCase;
-use cronforatk\BaseCronJob;
-use cronforatk\tests\testclasses\SomeCronJob;
-use cronforatk\tests\testclasses\SomeCronJobWithExceptionInExecute;
+use PhilippR\Atk4\Cron\BaseCronJob;
+use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob;
+use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute;
 
 class BaseCronJobTest extends TestCase
 {

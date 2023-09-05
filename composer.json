@@ -15,12 +15,12 @@
   },
   "autoload": {
     "psr-4": {
-      "cronforatk\\": "src"
+      "PhilippR\\Atk4\\Cron\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "cronforatk\\tests\\": "tests"
+      "PhilippR\\Atk4\\Cron\\Tests\\": "tests"
     }
   }
 }
