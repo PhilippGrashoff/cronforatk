@@ -27,12 +27,14 @@ class ExecutionLogTest extends TestCase
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = ExecutorTest::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
+                'cronjob_class' => SomeOtherCronJob::class,
+                'logging' => 'ALWAYS_LOG'
             ]
         );
 
@@ -43,7 +45,7 @@ class ExecutionLogTest extends TestCase
 
         self::assertEqualsWithDelta(
             1.0,
-            $this->getLastExecutionLog($scheduler1)->get('execution_duration'),
+            ExecutorTest::getLastExecutionLog($scheduler1)->get('execution_duration'),
             0.05
         );
     }
@@ -54,7 +56,7 @@ class ExecutionLogTest extends TestCase
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = ExecutorTest::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -64,7 +66,7 @@ class ExecutionLogTest extends TestCase
         );
 
 
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = ExecutorTest::getScheduler(
             $persistence,
             [
                 'cronjob_class' => SomeCronJobWithExceptionInExecute::class,
@@ -79,10 +81,10 @@ class ExecutionLogTest extends TestCase
         $executor->run($testTime);
 
         self::assertTrue(
-            $this->getLastExecutionLog($scheduler1)->get('execution_successful')
+            ExecutorTest::getLastExecutionLog($scheduler1)->get('execution_successful')
         );
         self::assertFalse(
-            $this->getLastExecutionLog($scheduler2)->get('execution_successful')
+            ExecutorTest::getLastExecutionLog($scheduler2)->get('execution_successful')
         );
     }
 
@@ -92,7 +94,7 @@ class ExecutionLogTest extends TestCase
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = ExecutorTest::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -117,7 +119,7 @@ class ExecutionLogTest extends TestCase
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = ExecutorTest::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -126,7 +128,7 @@ class ExecutionLogTest extends TestCase
             ]
         );
         //does not produce any output, should not produce log
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = ExecutorTest::getScheduler(
             $persistence,
             [
                 'cronjob_class' => SomeOtherCronJob::class,
@@ -159,7 +161,7 @@ class ExecutionLogTest extends TestCase
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = ExecutorTest::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -168,7 +170,7 @@ class ExecutionLogTest extends TestCase
             ]
         );
         //does not produce any output, should not produce log
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = ExecutorTest::getScheduler(
             $persistence,
             [
                 'cronjob_class' => SomeOtherCronJob::class,
@@ -196,12 +198,12 @@ class ExecutionLogTest extends TestCase
         );
     }
 
-    public function testLastExecutedSaved()
+    public function testLastExecutedSaved(): void
     {
         $persistence = $this->getSqliteTestPersistence();
         $dateTime = new \DateTime();
         //this one should be executed
-        $entity = $this->_getScheduler(
+        $entity = ExecutorTest::getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -216,32 +218,8 @@ class ExecutionLogTest extends TestCase
 
         self::assertSame(
             $dateTime->format('d-m-Y H:i:s'),
-            $entity->get('last_executed')->format('d-m-Y H:i:s')
-        );
-        self::assertSame(
-            $dateTime->format('d-m-Y H:i:s'),
-            $this->getLastExecutionLog($entity)->get('execution_datetime')->format('d-m-Y H:i:s')
+            ExecutorTest::getLastExecutionLog($entity)->get('execution_datetime')->format('d-m-Y H:i:s')
         );
     }
 
-    private function _getScheduler(Persistence $persistence, array $set = []): Scheduler
-    {
-        $entity = (new Scheduler($persistence))->createEntity();
-
-        $entity->set('cronjob_class', SomeCronJob::class);
-        $entity->set('is_active', 1);
-        $entity->setMulti($set);
-
-        $entity->save();
-
-        return $entity;
-    }
-
-    private function getLastExecutionLog(Scheduler $scheduler): ExecutionLog
-    {
-        $executionLog = $scheduler->ref(ExecutionLog::class);
-        $executionLog = $executionLog->loadAny();
-
-        return $executionLog;
-    }
 }

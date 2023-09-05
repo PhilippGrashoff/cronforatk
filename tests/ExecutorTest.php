@@ -27,7 +27,7 @@ class ExecutorTest extends TestCase
         $testTime = new \DateTime('2020-11-05');
         $testTime->setTime(3, 11);
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -35,7 +35,7 @@ class ExecutorTest extends TestCase
                 'time_yearly' => $testTime
             ]
         );
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -43,7 +43,7 @@ class ExecutorTest extends TestCase
                 'time_yearly' => (clone $testTime)->modify('-1 Minute'),
             ]
         );
-        $scheduler3 = $this->_getScheduler(
+        $scheduler3 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -51,7 +51,7 @@ class ExecutorTest extends TestCase
                 'time_yearly' => (clone $testTime)->modify('+1 Minute'),
             ]
         );
-        $scheduler4 = $this->_getScheduler(
+        $scheduler4 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -69,19 +69,20 @@ class ExecutorTest extends TestCase
         $scheduler3->reload();
         $scheduler4->reload();
 
-        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
-        self::assertNull($scheduler2->get('last_executed'));
-        self::assertNull($scheduler3->get('last_executed'));
-        self::assertNull($scheduler4->get('last_executed'));
+
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
+        self::assertNull(self::getLastExecutionLog($scheduler2));
+        self::assertNull(self::getLastExecutionLog($scheduler3));
+        self::assertNull(self::getLastExecutionLog($scheduler4));
     }
 
-    public function testSkipYearlyIfNoDateYearlySet()
+    public function testSkipYearlyIfNoDateYearlySet(): void
     {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -93,7 +94,7 @@ class ExecutorTest extends TestCase
         $executor->run($testTime);
 
         $scheduler1->reload();
-        self::assertNull($scheduler1->get('last_executed'));
+        self::assertNull(self::getLastExecutionLog($scheduler1));
     }
 
     public function testRunMonthly(): void
@@ -102,7 +103,7 @@ class ExecutorTest extends TestCase
         $testTime = new \DateTime('2020-08-05');
         $testTime->setTime(3, 14);
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -110,7 +111,7 @@ class ExecutorTest extends TestCase
                 'time_monthly' => $testTime,
             ]
         );
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -118,7 +119,7 @@ class ExecutorTest extends TestCase
                 'time_monthly' => (clone $testTime)->modify('-1 Minute'),
             ]
         );
-        $scheduler3 = $this->_getScheduler(
+        $scheduler3 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -126,7 +127,7 @@ class ExecutorTest extends TestCase
                 'time_monthly' => (clone $testTime)->modify('+1 Minute'),
             ]
         );
-        $scheduler4 = $this->_getScheduler(
+        $scheduler4 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -134,7 +135,7 @@ class ExecutorTest extends TestCase
                 'time_monthly' => $testTime
             ]
         );
-        $scheduler5 = $this->_getScheduler(
+        $scheduler5 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -153,20 +154,20 @@ class ExecutorTest extends TestCase
         $scheduler4->reload();
         $scheduler5->reload();
 
-        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
-        self::assertNull($scheduler2->get('last_executed'));
-        self::assertNull($scheduler3->get('last_executed'));
-        self::assertNull($scheduler4->get('last_executed'));
-        self::assertNull($scheduler5->get('last_executed'));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
+        self::assertNull(self::getLastExecutionLog($scheduler2));
+        self::assertNull(self::getLastExecutionLog($scheduler3));
+        self::assertNull(self::getLastExecutionLog($scheduler4));
+        self::assertNull(self::getLastExecutionLog($scheduler5));
     }
 
-    public function testSkipMonthlyIfNoTimeSet()
+    public function testSkipMonthlyIfNoTimeSet(): void
     {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -178,7 +179,7 @@ class ExecutorTest extends TestCase
         $executor->run($testTime);
 
         $scheduler1->reload();
-        self::assertNull($scheduler1->get('last_executed'));
+        self::assertNull(self::getLastExecutionLog($scheduler1));
     }
 
     public function testRunWeekly(): void
@@ -187,7 +188,7 @@ class ExecutorTest extends TestCase
         $testTime = new \DateTime('2020-06-03');
         $testTime->setTime(4, 34);
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -195,7 +196,7 @@ class ExecutorTest extends TestCase
                 'time_weekly' => $testTime,
             ]
         );
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -203,7 +204,7 @@ class ExecutorTest extends TestCase
                 'time_weekly' => (clone $testTime)->modify('-1 Minute'),
             ]
         );
-        $scheduler3 = $this->_getScheduler(
+        $scheduler3 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -211,7 +212,7 @@ class ExecutorTest extends TestCase
                 'time_weekly' => (clone $testTime)->modify('+1 Minute'),
             ]
         );
-        $scheduler4 = $this->_getScheduler(
+        $scheduler4 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -219,7 +220,7 @@ class ExecutorTest extends TestCase
                 'time_weekly' => $testTime,
             ]
         );
-        $scheduler5 = $this->_getScheduler(
+        $scheduler5 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'WEEKLY',
@@ -238,11 +239,11 @@ class ExecutorTest extends TestCase
         $scheduler4->reload();
         $scheduler5->reload();
 
-        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
-        self::assertNull($scheduler2->get('last_executed'));
-        self::assertNull($scheduler3->get('last_executed'));
-        self::assertNull($scheduler4->get('last_executed'));
-        self::assertNull($scheduler5->get('last_executed'));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
+        self::assertNull(self::getLastExecutionLog($scheduler2));
+        self::assertNull(self::getLastExecutionLog($scheduler3));
+        self::assertNull(self::getLastExecutionLog($scheduler4));
+        self::assertNull(self::getLastExecutionLog($scheduler5));
     }
 
     public function testRunDaily(): void
@@ -252,21 +253,21 @@ class ExecutorTest extends TestCase
         $testTime->setTime(15, 3);
 
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'DAILY',
                 'time_daily' => $testTime,
             ]
         );
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'DAILY',
                 'time_daily' => (clone $testTime)->modify('-1 Minute')
             ]
         );
-        $scheduler3 = $this->_getScheduler(
+        $scheduler3 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'DAILY',
@@ -282,32 +283,32 @@ class ExecutorTest extends TestCase
         $scheduler2->reload();
         $scheduler3->reload();
 
-        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
-        self::assertNull($scheduler2->get('last_executed'));
-        self::assertNull($scheduler3->get('last_executed'));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
+        self::assertNull(self::getLastExecutionLog($scheduler2));
+        self::assertNull(self::getLastExecutionLog($scheduler3));
     }
 
-    public function testRunHourly()
+    public function testRunHourly(): void
     {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime();
         $testTime->setTime(14, 35);
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => (int)$testTime->format('i')
             ]
         );
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => (int)(clone $testTime)->modify('+1 Minute')->format('i')
             ]
         );
-        $scheduler3 = $this->_getScheduler(
+        $scheduler3 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'HOURLY',
@@ -322,32 +323,32 @@ class ExecutorTest extends TestCase
         $scheduler2->reload();
         $scheduler3->reload();
 
-        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
-        self::assertNull($scheduler2->get('last_executed'));
-        self::assertNull($scheduler3->get('last_executed'));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
+        self::assertNull(self::getLastExecutionLog($scheduler2));
+        self::assertNull(self::getLastExecutionLog($scheduler3));
     }
 
-    public function testRunMinutely()
+    public function testRunMinutely(): void
     {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime();
         $testTime->setTime(3, 16);
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_MINUTE',
             ]
         );
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
-        $scheduler3 = $this->_getScheduler(
+        $scheduler3 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -362,19 +363,19 @@ class ExecutorTest extends TestCase
         $scheduler2->reload();
         $scheduler3->reload();
 
-        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
-        self::assertNull($scheduler2->get('last_executed'));
-        self::assertNull($scheduler3->get('last_executed'));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
+        self::assertNull(self::getLastExecutionLog($scheduler2));
+        self::assertNull(self::getLastExecutionLog($scheduler3));
     }
 
-    public function testRunMinutelyOffset()
+    public function testRunMinutelyOffset(): void
     {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime();
         $testTime->setTime(3, 18);
 
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -383,7 +384,7 @@ class ExecutorTest extends TestCase
             ]
         );
         //this one should be executed, too
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -391,14 +392,14 @@ class ExecutorTest extends TestCase
                 'offset_minutely' => 3,
             ]
         );
-        $scheduler3 = $this->_getScheduler(
+        $scheduler3 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
-        $scheduler4 = $this->_getScheduler(
+        $scheduler4 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MINUTELY',
@@ -414,19 +415,19 @@ class ExecutorTest extends TestCase
         $scheduler3->reload();
         $scheduler4->reload();
 
-        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
-        self::assertInstanceOf(\Datetime::class, $scheduler2->get('last_executed'));
-        self::assertNull($scheduler3->get('last_executed'));
-        self::assertNull($scheduler4->get('last_executed'));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler2));
+        self::assertNull(self::getLastExecutionLog($scheduler3));
+        self::assertNull(self::getLastExecutionLog($scheduler4));
     }
 
-    public function testNonActiveCronInRun()
+    public function testNonActiveCronInRun(): void
     {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'MONTHLY',
@@ -441,7 +442,7 @@ class ExecutorTest extends TestCase
         $executor->run($testTime);
 
         $scheduler1->reload();
-        self::assertNull($scheduler1->get('last_executed'));
+        self::assertNull(self::getLastExecutionLog($scheduler1));
 
         $scheduler1->set('is_active', 1);
         $scheduler1->save();
@@ -449,16 +450,16 @@ class ExecutorTest extends TestCase
         $executor->run($testTime);
 
         $scheduler1->reload();
-        self::assertInstanceOf(\Datetime::class, $scheduler1->get('last_executed'));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
     }
 
-    public function testExceptionInExecuteDoesNotStopExecutionOfOthers()
+    public function testExceptionInExecuteDoesNotStopExecutionOfOthers(): void
     {
         $persistence = $this->getSqliteTestPersistence();
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 
-        $scheduler1 = $this->_getScheduler(
+        $scheduler1 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'YEARLY',
@@ -469,7 +470,7 @@ class ExecutorTest extends TestCase
         $scheduler1->set('cronjob_class', SomeCronJobWithExceptionInExecute::class);
         $scheduler1->save();
 
-        $scheduler2 = $this->_getScheduler(
+        $scheduler2 = self::getScheduler(
             $persistence,
             [
                 'interval' => 'DAILY',
@@ -483,11 +484,11 @@ class ExecutorTest extends TestCase
         $scheduler1->reload();
         $scheduler2->reload();
 
-        self::assertInstanceOf(\DateTime::class, $scheduler2->get('last_executed'));
-        self::assertInstanceOf(\DateTime::class, $scheduler1->get('last_executed'));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler2));
+        self::assertInstanceOf(ExecutionLog::class, self::getLastExecutionLog($scheduler1));
     }
 
-    private function _getScheduler(Persistence $persistence, array $set = []): Scheduler
+    public static function getScheduler(Persistence $persistence, array $set = []): Scheduler
     {
         $scheduler= (new Scheduler($persistence))->createEntity();
 
@@ -498,5 +499,11 @@ class ExecutorTest extends TestCase
         $scheduler->save();
 
         return $scheduler;
+    }
+
+    public static function getLastExecutionLog(Scheduler $scheduler): ?ExecutionLog
+    {
+        $executionLog = $scheduler->ref(ExecutionLog::class);
+        return $executionLog->tryLoadAny();
     }
 }

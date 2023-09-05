@@ -191,16 +191,6 @@ class Scheduler extends Model
             ExecutionLog::class,
             ['model' => [ExecutionLog::class], 'theirField' => 'scheduler_id']
         );
-        $this->addExpression(
-            'last_executed',
-            [
-                'expr' => $this->refLink(ExecutionLog::class)
-                    ->action('field', ['execution_datetime'])
-                    ->limit(1),
-                'type' => 'datetime',
-                'system' => true
-            ]
-        );
 
         //Name and Description can be set freely. If it is not set, use values from BaseCronJob instance
         $this->onHook(

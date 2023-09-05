@@ -14,5 +14,6 @@ class SomeOtherCronJob extends BaseCronJob
 
     public function execute(): void
     {
+        sleep(1);
     }
 }

@@ -15,7 +15,6 @@ class SomeCronJob extends BaseCronJob
 
     public function execute(): void
     {
-        sleep(1);
         //dummy output for tests, here as string
         $this->executionLog[] = 'SomeModel With ID=3 deleted';
         //dummy log as stdclass; more info can be added here
