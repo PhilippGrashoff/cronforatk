@@ -109,3 +109,7 @@ All sample code from this readme can be found in the `docs` directory.
 
 # Versioning
 The version numbers of this repository correspond with the atk4\data versions. So 4.0.x is compatible with atk4\data 4.0.x and so on.
+
+# Open Todos
+* Currently, there are different time fields in Scheduler: time_yearly, time_monthly, time_weekly and time_daily. This should be replaced be a single time field.
+* There is no locking implemented (A cronjob could still be in schedule/currently being executed while being executed again by the next minutely Executor::run()). This should only be an issue for crons that are executed minutely.
