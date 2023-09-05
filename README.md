@@ -88,7 +88,7 @@ $schedulerDaily->set('time_daily', '03:45');
 $schedulerDaily->save();
 
 //you could add more schedulers executing the same cronjob in different intervals.
-// Here, we will add a weekly check sets the "strict" of MyCronJob to true. Like this, cronjobs can be parametrized
+// Here, we will set the property MyCronJob::strict to true. Like this, cronjobs can be parametrized for execution.
 $schedulerWeekly = new Scheduler($persistence, ['cronFilesPaths' => $pathsToCronJobs]);
 $schedulerWeekly->set('cronjob_class', MyCronJob::class);
 $schedulerWeekly->set('interval', 'WEEKLY');
