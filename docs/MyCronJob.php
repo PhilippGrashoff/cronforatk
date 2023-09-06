@@ -2,7 +2,8 @@
 
 namespace PhilippR\Atk4\Cron\docs;
 
-use cronforatk\BaseCronJob;
+
+use PhilippR\Atk4\Cron\BaseCronJob;
 
 class MyCronJob extends BaseCronJob
 {

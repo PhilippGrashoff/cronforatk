@@ -2,10 +2,10 @@
 
 use Atk4\Data\Persistence\Sql;
 use Atk4\Data\Schema\Migrator;
-use cronforatk\docs\MyCronJob;
-use cronforatk\ExecutionLog;
-use cronforatk\Executor;
-use cronforatk\Scheduler;
+use PhilippR\Atk4\Cron\docs\MyCronJob;
+use PhilippR\Atk4\Cron\ExecutionLog;
+use PhilippR\Atk4\Cron\Executor;
+use PhilippR\Atk4\Cron\Scheduler;
 
 $persistence = new Sql(
     'connection_string',

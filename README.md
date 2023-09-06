@@ -27,19 +27,13 @@ Two classes in this package need a database table: **Scheduler** and **Execution
 You can use [Atk4\Data\Schema\Migrator](https://github.com/atk4/data/blob/develop/src/Schema/Migrator.php) to create these 2 tables and the foreign key in your database.
 
 ```php
-<?php
-
-use cronforatk\Scheduler;
-use cronforatk\ExecutionLog;
-use Atk4\Data\Schema\Migrator;
-use Atk4\Data\Persistence\Sql;
-
 $persistence = new Sql(
-  'connection_string',
-  'username',
-  'password'
+    'connection_string',
+    'username',
+    'password'
 );
 
+//Setup database
 $scheduler = new Scheduler($this->db);
 (new Migrator($scheduler))->create();
 $executionLog = new ExecutionLog($this->db);
@@ -80,6 +74,10 @@ class MyCronJob extends BaseCronJob
 ### 2) Add one or more Schedulers to schedule when the cronjob should be executed
 Note: You can create a nice UI to create and update schedulers by using [atk4\ui](https://github.com/atk4/ui). In the following sample code, the schedulers are solely created on data level.
 ```php
+//tell the Schedulers where to look for Cronjob implementations.
+//In real implementations, extend Scheduler to set this once for all Schedulers
+$pathsToCronJobs = [__DIR__ => 'cronforatk\docs'];
+
 //Have our Cronjob executed Daily.
 $schedulerDaily = new Scheduler($persistence, ['cronFilesPaths' => $pathsToCronJobs]);
 $schedulerDaily->set('cronjob_class', MyCronJob::class);
@@ -88,7 +86,7 @@ $schedulerDaily->set('time_daily', '03:45');
 $schedulerDaily->save();
 
 //you could add more schedulers executing the same cronjob in different intervals.
-// Here, we will set the property MyCronJob::strict to true. Like this, cronjobs can be parametrized for execution.
+// Here, we will add a weekly check sets the "strict" of MyCronJob to true. Like this, cronjobs can be parametrized
 $schedulerWeekly = new Scheduler($persistence, ['cronFilesPaths' => $pathsToCronJobs]);
 $schedulerWeekly->set('cronjob_class', MyCronJob::class);
 $schedulerWeekly->set('interval', 'WEEKLY');
@@ -113,3 +111,4 @@ The version numbers of this repository correspond with the atk4\data versions. S
 # Open Todos
 * Currently, there are different time fields in Scheduler: time_yearly, time_monthly, time_weekly and time_daily. This should be replaced be a single time field.
 * There is no locking implemented (A cronjob could still be in schedule/currently being executed while being executed again by the next minutely Executor::run()). This should only be an issue for crons that are executed minutely.
+* There currently is no option to execute a cronjob at the last day of the month. This would be a sensible addition.
