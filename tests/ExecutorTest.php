@@ -7,15 +7,16 @@ namespace PhilippR\Atk4\Cron\Tests;
 use Atk4\Data\Persistence;
 use Atk4\Data\Persistence\Sql;
 use Atk4\Data\Schema\TestCase;
+use DateTime;
+use PhilippR\Atk4\Cron\ExecutionLog;
 use PhilippR\Atk4\Cron\Executor;
 use PhilippR\Atk4\Cron\Scheduler;
 use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob;
 use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute;
-use PhilippR\Atk4\Cron\ExecutionLog;
 
 class ExecutorTest extends TestCase
 {
-    
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -23,15 +24,14 @@ class ExecutorTest extends TestCase
         $this->createMigrator(new Scheduler($this->db))->create();
         $this->createMigrator(new ExecutionLog($this->db))->create();
     }
-    
+
     public function testRunYearly(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-11-05');
+        $testTime = new DateTime('2020-11-05');
         $testTime->setTime(3, 11);
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -39,7 +39,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler2 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -47,7 +47,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler3 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -55,7 +55,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler4 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => (clone $testTime)->modify('+1 Day'),
@@ -64,7 +64,7 @@ class ExecutorTest extends TestCase
         );
 
         //only one should be executed
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -81,19 +81,18 @@ class ExecutorTest extends TestCase
 
     public function testSkipYearlyIfNoDateYearlySet(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-05-05');
+        $testTime = new DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'time_yearly' => $testTime,
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -102,12 +101,11 @@ class ExecutorTest extends TestCase
 
     public function testRunMonthly(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-08-05');
+        $testTime = new DateTime('2020-08-05');
         $testTime->setTime(3, 14);
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => (int)$testTime->format('d'),
@@ -115,7 +113,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler2 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => (int)$testTime->format('d'),
@@ -123,7 +121,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler3 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => (int)$testTime->format('d'),
@@ -131,7 +129,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler4 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => (int)(clone $testTime)->modify('+1 Day')->format('d'),
@@ -139,7 +137,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler5 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => (int)(clone $testTime)->modify('+1 Day')->format('d'),
@@ -148,7 +146,7 @@ class ExecutorTest extends TestCase
         );
 
         //only one should be executed
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -166,19 +164,18 @@ class ExecutorTest extends TestCase
 
     public function testSkipMonthlyIfNoTimeSet(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-05-05');
+        $testTime = new DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -187,12 +184,11 @@ class ExecutorTest extends TestCase
 
     public function testRunWeekly(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-06-03');
+        $testTime = new DateTime('2020-06-03');
         $testTime->setTime(4, 34);
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => (int)$testTime->format('N'),
@@ -200,7 +196,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler2 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => (int)$testTime->format('N'),
@@ -208,7 +204,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler3 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => (int)$testTime->format('N'),
@@ -216,7 +212,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler4 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => (int)(clone $testTime)->modify('-1 Day')->format('N'),
@@ -224,7 +220,7 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler5 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'WEEKLY',
                 'weekday_weekly' => (int)(clone $testTime)->modify('+1 Day')->format('N'),
@@ -233,7 +229,7 @@ class ExecutorTest extends TestCase
         );
 
         //only one should be executed
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -251,27 +247,26 @@ class ExecutorTest extends TestCase
 
     public function testRunDaily(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime();
+        $testTime = new DateTime();
         $testTime->setTime(15, 3);
 
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'DAILY',
                 'time_daily' => $testTime,
             ]
         );
         $scheduler2 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'DAILY',
                 'time_daily' => (clone $testTime)->modify('-1 Minute')
             ]
         );
         $scheduler3 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'DAILY',
                 'time_daily' => (clone $testTime)->modify('+1 Minute')
@@ -279,7 +274,7 @@ class ExecutorTest extends TestCase
         );
 
         //only one should be executed
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -293,33 +288,32 @@ class ExecutorTest extends TestCase
 
     public function testRunHourly(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime();
+        $testTime = new DateTime();
         $testTime->setTime(14, 35);
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => (int)$testTime->format('i')
             ]
         );
         $scheduler2 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => (int)(clone $testTime)->modify('+1 Minute')->format('i')
             ]
         );
         $scheduler3 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'HOURLY',
                 'minute_hourly' => (int)(clone $testTime)->modify('-1 Minute')->format('i')
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -333,33 +327,32 @@ class ExecutorTest extends TestCase
 
     public function testRunMinutely(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime();
+        $testTime = new DateTime();
         $testTime->setTime(3, 16);
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_MINUTE',
             ]
         );
         $scheduler2 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
         $scheduler3 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -373,13 +366,12 @@ class ExecutorTest extends TestCase
 
     public function testRunMinutelyOffset(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime();
+        $testTime = new DateTime();
         $testTime->setTime(3, 18);
 
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
@@ -388,7 +380,7 @@ class ExecutorTest extends TestCase
         );
         //this one should be executed, too
         $scheduler2 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
@@ -396,21 +388,21 @@ class ExecutorTest extends TestCase
             ]
         );
         $scheduler3 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
         $scheduler4 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -426,12 +418,11 @@ class ExecutorTest extends TestCase
 
     public function testNonActiveCronInRun(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-05-05');
+        $testTime = new DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MONTHLY',
                 'day_monthly' => 5,
@@ -441,7 +432,7 @@ class ExecutorTest extends TestCase
 
         $scheduler1->set('is_active', 0);
         $scheduler1->save();
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -449,7 +440,7 @@ class ExecutorTest extends TestCase
 
         $scheduler1->set('is_active', 1);
         $scheduler1->save();
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -458,12 +449,11 @@ class ExecutorTest extends TestCase
 
     public function testExceptionInExecuteDoesNotStopExecutionOfOthers(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-05-05');
+        $testTime = new DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 
         $scheduler1 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -474,14 +464,14 @@ class ExecutorTest extends TestCase
         $scheduler1->save();
 
         $scheduler2 = self::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'DAILY',
                 'time_daily' => $testTime,
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -493,7 +483,7 @@ class ExecutorTest extends TestCase
 
     public static function getScheduler(Persistence $persistence, array $set = []): Scheduler
     {
-        $scheduler= (new Scheduler($persistence))->createEntity();
+        $scheduler = (new Scheduler($persistence))->createEntity();
 
         $scheduler->set('cronjob_class', SomeCronJob::class);
         $scheduler->set('is_active', 1);
@@ -504,8 +494,10 @@ class ExecutorTest extends TestCase
         return $scheduler;
     }
 
-    public static function getLastExecutionLog(Scheduler $scheduler): ?ExecutionLog
-    {
+    public
+    static function getLastExecutionLog(
+        Scheduler $scheduler
+    ): ?ExecutionLog {
         $executionLog = $scheduler->ref(ExecutionLog::class);
         return $executionLog->tryLoadAny();
     }

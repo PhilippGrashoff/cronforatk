@@ -6,6 +6,7 @@ namespace PhilippR\Atk4\Cron\Tests;
 
 use Atk4\Data\Persistence\Sql;
 use Atk4\Data\Schema\TestCase;
+use DateTime;
 use PhilippR\Atk4\Cron\ExecutionLog;
 use PhilippR\Atk4\Cron\Executor;
 use PhilippR\Atk4\Cron\Scheduler;
@@ -22,14 +23,14 @@ class ExecutionLogTest extends TestCase
         $this->createMigrator(new Scheduler($this->db))->create();
         $this->createMigrator(new ExecutionLog($this->db))->create();
     }
+
     public function testDurationIsLogged()
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-05-05');
+        $testTime = new DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -39,7 +40,7 @@ class ExecutionLogTest extends TestCase
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         $scheduler1->reload();
@@ -53,12 +54,11 @@ class ExecutionLogTest extends TestCase
 
     public function testExecutionSuccessIsLogged(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-09-07');
+        $testTime = new DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -68,7 +68,7 @@ class ExecutionLogTest extends TestCase
 
 
         $scheduler2 = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'cronjob_class' => SomeCronJobWithExceptionInExecute::class,
                 'interval' => 'YEARLY',
@@ -78,7 +78,7 @@ class ExecutionLogTest extends TestCase
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         self::assertTrue(
@@ -91,12 +91,11 @@ class ExecutionLogTest extends TestCase
 
     public function testLoggingOptionNoLogging(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-09-07');
+        $testTime = new DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -105,23 +104,22 @@ class ExecutionLogTest extends TestCase
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         self::assertSame(
             0,
-            (int)(new ExecutionLog($persistence))->action('count')->getOne()
+            (int)(new ExecutionLog($this->db))->action('count')->getOne()
         );
     }
 
     public function testLoggingOptionOnlyIfLogOutput(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-09-07');
+        $testTime = new DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -130,7 +128,7 @@ class ExecutionLogTest extends TestCase
         );
         //does not produce any output, should not produce log
         $scheduler2 = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'cronjob_class' => SomeOtherCronJob::class,
                 'interval' => 'YEARLY',
@@ -139,12 +137,12 @@ class ExecutionLogTest extends TestCase
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         self::assertSame(
             1,
-            (int)(new ExecutionLog($persistence))->action('count')->getOne()
+            (int)(new ExecutionLog($this->db))->action('count')->getOne()
         );
         self::assertSame(
             1,
@@ -158,12 +156,11 @@ class ExecutionLogTest extends TestCase
 
     public function testLoggingOptionAlwaysLog(): void
     {
-        $persistence = $this->db;
-        $testTime = new \DateTime('2020-09-07');
+        $testTime = new DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'YEARLY',
                 'date_yearly' => $testTime,
@@ -172,7 +169,7 @@ class ExecutionLogTest extends TestCase
         );
         //does not produce any output, should not produce log
         $scheduler2 = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'cronjob_class' => SomeOtherCronJob::class,
                 'interval' => 'YEARLY',
@@ -182,12 +179,12 @@ class ExecutionLogTest extends TestCase
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run($testTime);
 
         self::assertSame(
             2,
-            (int)(new ExecutionLog($persistence))->action('count')->getOne()
+            (int)(new ExecutionLog($this->db))->action('count')->getOne()
         );
         self::assertSame(
             1,
@@ -201,18 +198,17 @@ class ExecutionLogTest extends TestCase
 
     public function testLastExecutedSaved(): void
     {
-        $persistence = $this->db;
-        $dateTime = new \DateTime();
+        $dateTime = new DateTime();
         //this one should be executed
         $entity = ExecutorTest::getScheduler(
-            $persistence,
+            $this->db,
             [
                 'interval' => 'MINUTELY',
                 'interval_minutely' => 'EVERY_MINUTE',
             ]
         );
 
-        $executor = new Executor($persistence);
+        $executor = new Executor($this->db);
         $executor->run();
 
         $entity->reload();
