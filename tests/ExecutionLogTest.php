@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace PhilippR\Atk4\Cron\Tests;
 
-use atkextendedtestcase\TestCase;
+use Atk4\Data\Persistence\Sql;
+use Atk4\Data\Schema\TestCase;
 use PhilippR\Atk4\Cron\ExecutionLog;
 use PhilippR\Atk4\Cron\Executor;
 use PhilippR\Atk4\Cron\Scheduler;
@@ -14,14 +15,16 @@ use PhilippR\Atk4\Cron\Tests\Testclasses2\SomeOtherCronJob;
 class ExecutionLogTest extends TestCase
 {
 
-    protected array $sqlitePersistenceModels = [
-        Scheduler::class,
-        ExecutionLog::class
-    ];
-
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->db = new Sql('sqlite::memory:');
+        $this->createMigrator(new Scheduler($this->db))->create();
+        $this->createMigrator(new ExecutionLog($this->db))->create();
+    }
     public function testDurationIsLogged()
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 
@@ -50,7 +53,7 @@ class ExecutionLogTest extends TestCase
 
     public function testExecutionSuccessIsLogged(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
@@ -88,7 +91,7 @@ class ExecutionLogTest extends TestCase
 
     public function testLoggingOptionNoLogging(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
@@ -113,7 +116,7 @@ class ExecutionLogTest extends TestCase
 
     public function testLoggingOptionOnlyIfLogOutput(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
@@ -155,7 +158,7 @@ class ExecutionLogTest extends TestCase
 
     public function testLoggingOptionAlwaysLog(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
@@ -198,7 +201,7 @@ class ExecutionLogTest extends TestCase
 
     public function testLastExecutedSaved(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $dateTime = new \DateTime();
         //this one should be executed
         $entity = ExecutorTest::getScheduler(

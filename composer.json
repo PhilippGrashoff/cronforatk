@@ -5,7 +5,6 @@
   "prefer-stable": true,
   "require": {
     "php": "8.*",
-    "philippgrashoff/atkextendedtestcase": "4.*",
     "atk4/data": "4.*",
     "ext-json": "*"
   },

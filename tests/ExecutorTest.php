@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace PhilippR\Atk4\Cron\Tests;
 
 use Atk4\Data\Persistence;
-use atkextendedtestcase\TestCase;
+use Atk4\Data\Persistence\Sql;
+use Atk4\Data\Schema\TestCase;
 use PhilippR\Atk4\Cron\Executor;
 use PhilippR\Atk4\Cron\Scheduler;
 use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob;
@@ -14,16 +15,18 @@ use PhilippR\Atk4\Cron\ExecutionLog;
 
 class ExecutorTest extends TestCase
 {
-
-    protected array $sqlitePersistenceModels = [
-        Scheduler::class,
-        ExecutionLog::class
-    ];
-
-
+    
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->db = new Sql('sqlite::memory:');
+        $this->createMigrator(new Scheduler($this->db))->create();
+        $this->createMigrator(new ExecutionLog($this->db))->create();
+    }
+    
     public function testRunYearly(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-11-05');
         $testTime->setTime(3, 11);
         //this one should be executed
@@ -78,7 +81,7 @@ class ExecutorTest extends TestCase
 
     public function testSkipYearlyIfNoDateYearlySet(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
@@ -99,7 +102,7 @@ class ExecutorTest extends TestCase
 
     public function testRunMonthly(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-08-05');
         $testTime->setTime(3, 14);
         //this one should be executed
@@ -163,7 +166,7 @@ class ExecutorTest extends TestCase
 
     public function testSkipMonthlyIfNoTimeSet(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
@@ -184,7 +187,7 @@ class ExecutorTest extends TestCase
 
     public function testRunWeekly(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-06-03');
         $testTime->setTime(4, 34);
         //this one should be executed
@@ -248,7 +251,7 @@ class ExecutorTest extends TestCase
 
     public function testRunDaily(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime();
         $testTime->setTime(15, 3);
 
@@ -290,7 +293,7 @@ class ExecutorTest extends TestCase
 
     public function testRunHourly(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime();
         $testTime->setTime(14, 35);
         //this one should be executed
@@ -330,7 +333,7 @@ class ExecutorTest extends TestCase
 
     public function testRunMinutely(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime();
         $testTime->setTime(3, 16);
         //this one should be executed
@@ -370,7 +373,7 @@ class ExecutorTest extends TestCase
 
     public function testRunMinutelyOffset(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime();
         $testTime->setTime(3, 18);
 
@@ -423,7 +426,7 @@ class ExecutorTest extends TestCase
 
     public function testNonActiveCronInRun(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
         //this one should be executed
@@ -455,7 +458,7 @@ class ExecutorTest extends TestCase
 
     public function testExceptionInExecuteDoesNotStopExecutionOfOthers(): void
     {
-        $persistence = $this->getSqliteTestPersistence();
+        $persistence = $this->db;
         $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 

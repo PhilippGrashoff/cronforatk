@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace PhilippR\Atk4\Cron\Tests;
 
-use atkextendedtestcase\TestCase;
+use Atk4\Data\Persistence\Sql;
+use Atk4\Data\Schema\TestCase;
 use PhilippR\Atk4\Cron\ExecutionLog;
 use PhilippR\Atk4\Cron\Scheduler;
 use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob;
@@ -12,14 +13,17 @@ use PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob;
 class SchedulerTest extends TestCase
 {
 
-    protected array $sqlitePersistenceModels = [
-        Scheduler::class,
-        ExecutionLog::class
-    ];
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->db = new Sql('sqlite::memory:');
+        $this->createMigrator(new Scheduler($this->db))->create();
+        $this->createMigrator(new ExecutionLog($this->db))->create();
+    }
 
     public function testNameAndDescriptionLoadedFromBaseCronJob()
     {
-        $scheduler = (new Scheduler($this->getSqliteTestPersistence()))->createEntity();
+        $scheduler = (new Scheduler($this->db))->createEntity();
         $scheduler->set('cronjob_class', SomeCronJob::class);
         $scheduler->save();
         self::assertSame(
@@ -34,7 +38,7 @@ class SchedulerTest extends TestCase
 
     public function testNameAndDescriptionNotChangedIfAlreadySet()
     {
-        $scheduler = (new Scheduler($this->getSqliteTestPersistence()))->createEntity();
+        $scheduler = (new Scheduler($this->db))->createEntity();
         $scheduler->set('cronjob_class', SomeCronJob::class);
         $scheduler->set('name', 'someName');
         $scheduler->set('description', 'someDescription');
@@ -51,7 +55,7 @@ class SchedulerTest extends TestCase
 
     public function testNameAndDescriptionNotLoadedIfNoCronJobModelSet()
     {
-        $scheduler = (new Scheduler($this->getSqliteTestPersistence()))->createEntity();
+        $scheduler = (new Scheduler($this->db))->createEntity();
         $scheduler->save();
         self::assertNull($scheduler->get('name'));
         self::assertNull($scheduler->get('description'));

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PhilippR\Atk4\Cron\Tests;
 
 
-use atkextendedtestcase\TestCase;
+use Atk4\Core\Phpunit\TestCase;
 use PhilippR\Atk4\Cron\CronJobLoader;
 
 class CronJobLoaderTest extends TestCase
