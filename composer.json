@@ -5,7 +5,7 @@
   "prefer-stable": true,
   "require": {
     "php": "8.*",
-    "atk4/data": "4.*",
+    "atk4/data": "5.*",
     "ext-json": "*"
   },
   "require-dev": {

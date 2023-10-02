@@ -6,7 +6,6 @@ namespace PhilippR\Atk4\Cron\Tests;
 
 use Atk4\Data\Persistence\Sql;
 use Atk4\Data\Schema\TestCase;
-use DateTime;
 use PhilippR\Atk4\Cron\ExecutionLog;
 use PhilippR\Atk4\Cron\Executor;
 use PhilippR\Atk4\Cron\Scheduler;
@@ -26,7 +25,7 @@ class ExecutionLogTest extends TestCase
 
     public function testDurationIsLogged()
     {
-        $testTime = new DateTime('2020-05-05');
+        $testTime = new \DateTime('2020-05-05');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
@@ -54,7 +53,7 @@ class ExecutionLogTest extends TestCase
 
     public function testExecutionSuccessIsLogged(): void
     {
-        $testTime = new DateTime('2020-09-07');
+        $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
@@ -91,7 +90,7 @@ class ExecutionLogTest extends TestCase
 
     public function testLoggingOptionNoLogging(): void
     {
-        $testTime = new DateTime('2020-09-07');
+        $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
@@ -115,7 +114,7 @@ class ExecutionLogTest extends TestCase
 
     public function testLoggingOptionOnlyIfLogOutput(): void
     {
-        $testTime = new DateTime('2020-09-07');
+        $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
@@ -156,7 +155,7 @@ class ExecutionLogTest extends TestCase
 
     public function testLoggingOptionAlwaysLog(): void
     {
-        $testTime = new DateTime('2020-09-07');
+        $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
 
         $scheduler1 = ExecutorTest::getScheduler(
@@ -198,7 +197,7 @@ class ExecutionLogTest extends TestCase
 
     public function testLastExecutedSaved(): void
     {
-        $dateTime = new DateTime();
+        $dateTime = new \DateTime();
         //this one should be executed
         $entity = ExecutorTest::getScheduler(
             $this->db,
