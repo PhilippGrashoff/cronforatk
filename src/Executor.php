@@ -29,7 +29,7 @@ class Executor
      * @param DateTime|null $dateTime
      * @return void
      * @throws \Atk4\Core\Exception
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function run(DateTime $dateTime = null): void
     {
@@ -45,7 +45,32 @@ class Executor
         $this->currentMinute = (int)$dateTime->format('i');
 
         //execute yearly first, minutely last.
-        //TODO this creates 6 DB requests but could be iterated in a single request if ordered by intervals from yearly to minutely
+        $this->runOrderedByInterval();
+    }
+
+    /**
+     * This general implementation runs yearly cronjobs first, minutely last. It is advisable to overwrite this method
+     * as it creates a new Model and a new DB request per interval (yearly, monthly, weekly and so on) but can be
+     * handled by a single db request if cronjobs are ordered by interval.
+     * A Mysql/Mariadb implementation would look like this:
+     *
+     * protected function runOrderedByInterval(): void
+     * {
+     *     $cronJobModel = new Scheduler($this->persistence);
+     *     $cronJobModel->addCondition('is_active', 1);
+     *     $cronJobModel->setOrder('ORDER BY FIELD(interval,' . implode(',', array_keys(Scheduler::getIntervals())) . ')');
+     *     foreach ($cronJobModel as $cronJobEntity) {
+     *         $this->executeCronIfScheduleMatches($cronJobEntity);
+     *     }
+     * }
+     *
+     * @return void
+     * @throws Exception
+     * @throws Throwable
+     * @throws \Atk4\Core\Exception
+     */
+    protected function runOrderedByInterval(): void
+    {
         foreach (Scheduler::getIntervals() as $interval => $intervalName) {
             $cronJobModel = new Scheduler($this->persistence);
             $cronJobModel->addCondition('interval', $interval);
@@ -57,11 +82,12 @@ class Executor
         }
     }
 
+
     /**
      * @param Scheduler $cronJobEntity
      * @return void
      * @throws \Atk4\Core\Exception
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     protected function executeCronIfScheduleMatches(Scheduler $cronJobEntity): void
     {
@@ -226,10 +252,9 @@ class Executor
         }
     }
 
-
     /**
      * This function can be implemented in child classes which extend this class in order you want some custom reporting
-     * (e.g. an Email), per successful cronjob run
+     * (e.g., an Email, passing to central logger), per successful cronjob run
      *
      * @param ExecutionLog $cronJobExecutionLog
      * @return void
@@ -240,7 +265,7 @@ class Executor
 
     /**
      * This function can be implemented in child classes which extend this class in order you want some custom reporting
-     * (e.g. an Email), per successful cronjob run
+     * (e.g., an Email, passing to central logger), per successful cronjob run
      *
      * @param ExecutionLog $cronJobExecutionLog
      * @param Throwable $e
