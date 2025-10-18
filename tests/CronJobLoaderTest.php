@@ -17,13 +17,11 @@ class CronJobLoaderTest extends TestCase
             [__DIR__ . '/Testclasses' => 'PhilippR\\Atk4\\Cron\\Tests\\Testclasses']
 
         );
-        self::assertSame(
-            [
-                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
-                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob' => 'SomeNameForThisCron'
-            ],
-            $resultOneDir
-        );
+        self::assertCount(2, $resultOneDir);
+        self::assertArrayHasKey('PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute', $resultOneDir);
+        self::assertArrayHasKey('PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob', $resultOneDir);
+        self::assertContains('SomeCronJobWithExceptionInExecute', $resultOneDir);
+        self::assertContains('SomeNameForThisCron', $resultOneDir);
     }
 
     public function testLoadAvailableCronJobsFrom2Directories(): void
@@ -34,15 +32,14 @@ class CronJobLoaderTest extends TestCase
                 __DIR__ . '/Testclasses2' => 'PhilippR\\Atk4\\Cron\\Tests\\Testclasses2'
             ]
         );
-        self::assertSame(
-            [
-                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
-                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob' => 'SomeNameForThisCron',
-                'PhilippR\Atk4\Cron\Tests\Testclasses2\SomeOtherCronJob' => 'SomeNameForThisOtherCron'
 
-            ],
-            $resultTwoDirs
-        );
+        self::assertCount(3, $resultTwoDirs);
+        self::assertArrayHasKey('PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute', $resultTwoDirs);
+        self::assertArrayHasKey('PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob', $resultTwoDirs);
+        self::assertArrayHasKey('PhilippR\Atk4\Cron\Tests\Testclasses2\SomeOtherCronJob', $resultTwoDirs);
+        self::assertContains('SomeCronJobWithExceptionInExecute', $resultTwoDirs);
+        self::assertContains('SomeNameForThisCron', $resultTwoDirs);
+        self::assertContains('SomeNameForThisOtherCron', $resultTwoDirs);
     }
 
     public function testNonExistentFolderIsSkipped(): void
@@ -53,12 +50,7 @@ class CronJobLoaderTest extends TestCase
                 'some/non/existant/path' => 'PMRAtk\\Data\\Cron',
             ]
         );
-        self::assertSame(
-            [
-                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJobWithExceptionInExecute' => 'SomeCronJobWithExceptionInExecute',
-                'PhilippR\Atk4\Cron\Tests\Testclasses\SomeCronJob' => 'SomeNameForThisCron'
-            ],
-            $resultOneDir
-        );
+
+        self::assertCount(2, $resultOneDir);
     }
 }

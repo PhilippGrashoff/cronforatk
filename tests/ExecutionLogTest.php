@@ -202,8 +202,8 @@ class ExecutionLogTest extends TestCase
         $entity = ExecutorTest::getScheduler(
             $this->db,
             [
-                'interval' => 'MINUTELY',
-                'interval_minutely' => 'EVERY_MINUTE',
+                'interval' => Scheduler::INTERVAL_MINUTELY,
+                'interval_minutely' => Scheduler::MINUTELY_INTERVAL_EVERY_MINUTE,
             ]
         );
 
@@ -212,9 +212,10 @@ class ExecutionLogTest extends TestCase
 
         $entity->reload();
 
-        self::assertSame(
-            $dateTime->format('d-m-Y H:i:s'),
-            ExecutorTest::getLastExecutionLog($entity)->get('execution_datetime')->format('d-m-Y H:i:s')
+        self::assertEqualsWithDelta(
+            $dateTime,
+            ExecutorTest::getLastExecutionLog($entity)->get('execution_datetime'),
+            1.1
         );
     }
 

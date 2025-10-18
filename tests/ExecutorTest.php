@@ -333,21 +333,21 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MINUTELY',
-                'interval_minutely' => 'EVERY_MINUTE',
+                'interval' => Scheduler::INTERVAL_MINUTELY,
+                'interval_minutely' => Scheduler::MINUTELY_INTERVAL_EVERY_MINUTE,
             ]
         );
         $scheduler2 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MINUTELY',
+                'interval' => Scheduler::INTERVAL_MINUTELY,
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
         $scheduler3 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MINUTELY',
+                'interval' => Scheduler::INTERVAL_MINUTELY,
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
             ]
         );
@@ -373,7 +373,7 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MINUTELY',
+                'interval' => Scheduler::INTERVAL_MINUTELY,
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
                 'offset_minutely' => 3,
             ]
@@ -382,7 +382,7 @@ class ExecutorTest extends TestCase
         $scheduler2 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MINUTELY',
+                'interval' => Scheduler::INTERVAL_MINUTELY,
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
                 'offset_minutely' => 3,
             ]
@@ -390,14 +390,14 @@ class ExecutorTest extends TestCase
         $scheduler3 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MINUTELY',
+                'interval' => Scheduler::INTERVAL_MINUTELY,
                 'interval_minutely' => 'EVERY_FIFTH_MINUTE',
             ]
         );
         $scheduler4 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MINUTELY',
+                'interval' => Scheduler::INTERVAL_MINUTELY,
                 'interval_minutely' => 'EVERY_FIFTEENTH_MINUTE',
             ]
         );

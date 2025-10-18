@@ -11,34 +11,55 @@ class Scheduler extends Model
     public $table = 'scheduler';
 
     /** @var array<string, class-string>
-     * path(es) to  folders where  Cronjob php Files are located
+     * path(es) to folders where cronjob php Files are located
      * format: path => namespace, e.g. 'src/data/cron' => 'YourProject\\Data\\Cron',
      */
     public array $cronFilesPaths = [];
 
-    /** @var array|string[] */
-    public static array $intervalSettings = [
-        'YEARLY' => 'Yearly',
-        'MONTHLY' => 'Monthly',
-        'WEEKLY' => 'Weekly',
-        'DAILY' => 'Daily',
-        'HOURLY' => 'Hourly',
-        'MINUTELY' => 'Minutely'
-    ];
+    public const string INTERVAL_YEARLY = 'YEARLY';
+    public const string INTERVAL_MONTHLY = 'MONTHLY';
+    public const string INTERVAL_WEEKLY = 'WEEKLY';
+    public const string INTERVAL_DAILY = 'DAILY';
+    public const string INTERVAL_HOURLY = 'HOURLY';
+    public const string INTERVAL_MINUTELY = 'MINUTELY';
 
-    /** @var array|string[] */
-    public static array $minutelyIntervalSettings = [
-        'EVERY_MINUTE' => 'Every minute',
-        'EVERY_FIFTH_MINUTE' => 'Every fifth minute',
-        'EVERY_FIFTEENTH_MINUTE' => 'Every fifteenth minute'
-    ];
+    public static function getIntervals(): array
+    {
+        return [
+            self::INTERVAL_YEARLY => 'Yearly',
+            self::INTERVAL_MONTHLY => 'Monthly',
+            self::INTERVAL_WEEKLY => 'Weekly',
+            self::INTERVAL_DAILY => 'Daily',
+            self::INTERVAL_HOURLY => 'Hourly',
+            self::INTERVAL_MINUTELY => 'Minutely'
+        ];
+    }
 
-    /** @var array|string[] */
-    public static array $loggingOptions = [
-        'NO_LOGGING' => 'Do not log executions',
-        'ONLY_LOG_IF_OUTPUT' => 'Only log executions if an execution creates output',
-        'ALWAYS_LOG' => 'Always log executions'
-    ];
+    public const string MINUTELY_INTERVAL_EVERY_MINUTE = 'EVERY_MINUTE';
+    public const string MINUTELY_INTERVAL_EVERY_FIFTH_MINUTE = 'EVERY_FIFTH_MINUTE';
+    public const string MINUTELY_INTERVAL_EVERY_FIFTEENTH_MINUTE = 'EVERY_FIFTEENTH_MINUTE';
+
+    public static function getMinutelyIntervalSettings(): array
+    {
+        return [
+            self::MINUTELY_INTERVAL_EVERY_MINUTE => 'Every minute',
+            self::MINUTELY_INTERVAL_EVERY_FIFTH_MINUTE => 'Every fifth minute',
+            self::MINUTELY_INTERVAL_EVERY_FIFTEENTH_MINUTE => 'Every fifteenth minute'
+        ];
+    }
+
+    public const string LOGGING_NO_LOGGING = 'NO_LOGGING';
+    public const string LOGGING_ONLY_LOG_IF_OUTPUT = 'ONLY_LOG_IF_OUTPUT';
+    public const string LOGGING_ALWAYS_LOG = 'ALWAYS_LOG';
+
+    public static function getLoggingOptions(): array
+    {
+        return [
+            self::LOGGING_NO_LOGGING => 'Do not log executions',
+            self::LOGGING_ONLY_LOG_IF_OUTPUT => 'Only log executions if an execution creates output',
+            self::LOGGING_ALWAYS_LOG => 'Always log executions'
+        ];
+    }
 
     protected function init(): void
     {
@@ -48,7 +69,7 @@ class Scheduler extends Model
             'cronjob_class',
             [
                 'type' => 'string',
-                'caption' => 'Diesen Cronjob ausführen',
+                'caption' => 'Execute this Cronjob',
                 'values' => CronJobLoader::getAvailableCronJobs($this->cronFilesPaths),
             ]
         );
@@ -90,7 +111,7 @@ class Scheduler extends Model
             [
                 'type' => 'string',
                 'caption' => 'Execution interval',
-                'values' => self::$intervalSettings,
+                'values' => self::getIntervals(),
             ]
         );
 
@@ -163,7 +184,7 @@ class Scheduler extends Model
             [
                 'type' => 'string',
                 'caption' => 'Intervall',
-                'values' => self::$minutelyIntervalSettings,
+                'values' => self::getMinutelyIntervalSettings(),
             ]
         );
 
@@ -180,8 +201,8 @@ class Scheduler extends Model
             'logging',
             [
                 'type' => 'string',
-                'values' => self::$loggingOptions,
-                'default' => 'ONLY_LOG_IF_OUTPUT'
+                'values' => self::getLoggingOptions(),
+                'default' => self::LOGGING_ONLY_LOG_IF_OUTPUT
             ]
         );
 

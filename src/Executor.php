@@ -45,12 +45,13 @@ class Executor
         $this->currentMinute = (int)$dateTime->format('i');
 
         //execute yearly first, minutely last.
-        foreach (Scheduler::$intervalSettings as $interval => $intervalName) {
-            $cronJobModels = new Scheduler($this->persistence);
-            $cronJobModels->addCondition('interval', $interval);
-            $cronJobModels->addCondition('is_active', 1);
+        //TODO this creates 6 DB requests but could be iterated in a single request if ordered by intervals from yearly to minutely
+        foreach (Scheduler::getIntervals() as $interval => $intervalName) {
+            $cronJobModel = new Scheduler($this->persistence);
+            $cronJobModel->addCondition('interval', $interval);
+            $cronJobModel->addCondition('is_active', 1);
 
-            foreach ($cronJobModels as $cronJobEntity) {
+            foreach ($cronJobModel as $cronJobEntity) {
                 $this->executeCronIfScheduleMatches($cronJobEntity);
             }
         }
@@ -65,17 +66,17 @@ class Executor
     protected function executeCronIfScheduleMatches(Scheduler $cronJobEntity): void
     {
         $entityInterval = $cronJobEntity->get('interval');
-        if ($entityInterval === 'YEARLY' && $this->checkYearlyExecutionIsNow($cronJobEntity)) {
+        if ($entityInterval === Scheduler::INTERVAL_YEARLY && $this->checkYearlyExecutionIsNow($cronJobEntity)) {
             $this->executeCronJob($cronJobEntity);
-        } elseif ($entityInterval === 'MONTHLY' && $this->checkMonthlyExecutionIsNow($cronJobEntity)) {
+        } elseif ($entityInterval === Scheduler::INTERVAL_MONTHLY && $this->checkMonthlyExecutionIsNow($cronJobEntity)) {
             $this->executeCronJob($cronJobEntity);
-        } elseif ($entityInterval === 'WEEKLY' && $this->checkWeeklyExecutionIsNow($cronJobEntity)) {
+        } elseif ($entityInterval === Scheduler::INTERVAL_WEEKLY && $this->checkWeeklyExecutionIsNow($cronJobEntity)) {
             $this->executeCronJob($cronJobEntity);
-        } elseif ($entityInterval === 'DAILY' && $this->checkDailyExecutionIsNow($cronJobEntity)) {
+        } elseif ($entityInterval === Scheduler::INTERVAL_DAILY && $this->checkDailyExecutionIsNow($cronJobEntity)) {
             $this->executeCronJob($cronJobEntity);
-        } elseif ($entityInterval === 'HOURLY' && $this->checkHourlyExecutionIsNow($cronJobEntity)) {
+        } elseif ($entityInterval === Scheduler::INTERVAL_HOURLY && $this->checkHourlyExecutionIsNow($cronJobEntity)) {
             $this->executeCronJob($cronJobEntity);
-        } elseif ($entityInterval === 'MINUTELY' && $this->checkMinutelyExecutionIsNow($cronJobEntity)) {
+        } elseif ($entityInterval === Scheduler::INTERVAL_MINUTELY && $this->checkMinutelyExecutionIsNow($cronJobEntity)) {
             $this->executeCronJob($cronJobEntity);
         }
     }
@@ -171,15 +172,15 @@ class Executor
      */
     protected function checkMinutelyExecutionIsNow(Scheduler $cronJobEntity): bool
     {
-        if ($cronJobEntity->get('interval_minutely') == 'EVERY_MINUTE') {
+        if ($cronJobEntity->get('interval_minutely') == Scheduler::MINUTELY_INTERVAL_EVERY_MINUTE) {
             return true;
         } elseif (
-            $cronJobEntity->get('interval_minutely') == 'EVERY_FIFTH_MINUTE'
+            $cronJobEntity->get('interval_minutely') == Scheduler::MINUTELY_INTERVAL_EVERY_FIFTH_MINUTE
             && ($this->currentMinute % 5) === $cronJobEntity->get('offset_minutely')
         ) {
             return true;
         } elseif (
-            $cronJobEntity->get('interval_minutely') == 'EVERY_FIFTEENTH_MINUTE'
+            $cronJobEntity->get('interval_minutely') == Scheduler::MINUTELY_INTERVAL_EVERY_FIFTEENTH_MINUTE
             && ($this->currentMinute % 15) === $cronJobEntity->get('offset_minutely')
         ) {
             return true;
@@ -191,7 +192,7 @@ class Executor
      * @param Scheduler $entity
      * @return void
      * @throws \Atk4\Core\Exception
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     protected function executeCronJob(Scheduler $entity): void
     {
@@ -215,9 +216,9 @@ class Executor
         }
         $executionLog->set('execution_duration', microtime(true) - $startOfCron);
         if (
-            $entity->get('logging') === 'ALWAYS_LOG'
+            $entity->get('logging') === Scheduler::LOGGING_ALWAYS_LOG
             || (
-                $entity->get('logging') === 'ONLY_LOG_IF_OUTPUT'
+                $entity->get('logging') === Scheduler::LOGGING_ONLY_LOG_IF_OUTPUT
                 && count($executionLog->get('execution_output')) > 0
             )
         ) {
