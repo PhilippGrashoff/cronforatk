@@ -8,7 +8,7 @@ use Atk4\Data\Model;
 class ExecutionLog extends Model
 {
 
-    public $table = 'execution_log';
+    public $table = 'cron_execution_log';
 
     //no reload needed as there are no expressions in this model. Saves Performance
     public bool $reloadAfterSave = false;

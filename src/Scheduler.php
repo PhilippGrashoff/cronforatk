@@ -8,7 +8,7 @@ use Atk4\Data\Model;
 class Scheduler extends Model
 {
 
-    public $table = 'scheduler';
+    public $table = 'cron_scheduler';
 
     /** @var array<string, class-string>
      * path(es) to folders where cronjob php Files are located
