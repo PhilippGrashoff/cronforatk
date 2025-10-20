@@ -51,14 +51,14 @@ class Executor
     /**
      * This general implementation runs yearly cronjobs first, minutely last. It is advisable to overwrite this method
      * as it creates a new Model and a new DB request per interval (yearly, monthly, weekly and so on) but can be
-     * handled by a single db request if cronjobs are ordered by interval.
+     * handled by a single Model and db request if cronjobs are ordered by interval.
      * A Mysql/Mariadb implementation would look like this:
      *
      * protected function runOrderedByInterval(): void
      * {
      *     $cronJobModel = new Scheduler($this->persistence);
      *     $cronJobModel->addCondition('is_active', 1);
-     *     $cronJobModel->setOrder('ORDER BY FIELD(interval,' . implode(',', array_keys(Scheduler::getIntervals())) . ')');
+     *     $cronJobModel->setOrder($cronJobModel->expr("FIELD (`interval`,'" . implode("','", array_keys(Scheduler::getIntervals())) . "')"));
      *     foreach ($cronJobModel as $cronJobEntity) {
      *         $this->executeCronIfScheduleMatches($cronJobEntity);
      *     }
