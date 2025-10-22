@@ -33,7 +33,7 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime
             ]
@@ -41,7 +41,7 @@ class ExecutorTest extends TestCase
         $scheduler2 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => (clone $testTime)->modify('-1 Minute'),
             ]
@@ -49,7 +49,7 @@ class ExecutorTest extends TestCase
         $scheduler3 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => (clone $testTime)->modify('+1 Minute'),
             ]
@@ -57,7 +57,7 @@ class ExecutorTest extends TestCase
         $scheduler4 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => (clone $testTime)->modify('+1 Day'),
                 'time_yearly' => $testTime,
             ]
@@ -87,7 +87,7 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'time_yearly' => $testTime,
             ]
         );
@@ -107,7 +107,7 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MONTHLY',
+                'interval' => Scheduler::INTERVAL_MONTHLY,
                 'day_monthly' => (int)$testTime->format('d'),
                 'time_monthly' => $testTime,
             ]
@@ -115,7 +115,7 @@ class ExecutorTest extends TestCase
         $scheduler2 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MONTHLY',
+                'interval' => Scheduler::INTERVAL_MONTHLY,
                 'day_monthly' => (int)$testTime->format('d'),
                 'time_monthly' => (clone $testTime)->modify('-1 Minute'),
             ]
@@ -123,7 +123,7 @@ class ExecutorTest extends TestCase
         $scheduler3 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MONTHLY',
+                'interval' => Scheduler::INTERVAL_MONTHLY,
                 'day_monthly' => (int)$testTime->format('d'),
                 'time_monthly' => (clone $testTime)->modify('+1 Minute'),
             ]
@@ -131,7 +131,7 @@ class ExecutorTest extends TestCase
         $scheduler4 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MONTHLY',
+                'interval' => Scheduler::INTERVAL_MONTHLY,
                 'day_monthly' => (int)(clone $testTime)->modify('+1 Day')->format('d'),
                 'time_monthly' => $testTime
             ]
@@ -139,7 +139,7 @@ class ExecutorTest extends TestCase
         $scheduler5 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MONTHLY',
+                'interval' => Scheduler::INTERVAL_MONTHLY,
                 'day_monthly' => (int)(clone $testTime)->modify('+1 Day')->format('d'),
                 'time_monthly' => $testTime,
             ]
@@ -170,7 +170,7 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MONTHLY',
+                'interval' => Scheduler::INTERVAL_MONTHLY,
                 'day_monthly' => 5,
             ]
         );
@@ -190,7 +190,7 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'WEEKLY',
+                'interval' => Scheduler::INTERVAL_WEEKLY,
                 'weekday_weekly' => (int)$testTime->format('N'),
                 'time_weekly' => $testTime,
             ]
@@ -198,7 +198,7 @@ class ExecutorTest extends TestCase
         $scheduler2 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'WEEKLY',
+                'interval' => Scheduler::INTERVAL_WEEKLY,
                 'weekday_weekly' => (int)$testTime->format('N'),
                 'time_weekly' => (clone $testTime)->modify('-1 Minute'),
             ]
@@ -206,7 +206,7 @@ class ExecutorTest extends TestCase
         $scheduler3 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'WEEKLY',
+                'interval' => Scheduler::INTERVAL_WEEKLY,
                 'weekday_weekly' => (int)$testTime->format('N'),
                 'time_weekly' => (clone $testTime)->modify('+1 Minute'),
             ]
@@ -214,7 +214,7 @@ class ExecutorTest extends TestCase
         $scheduler4 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'WEEKLY',
+                'interval' => Scheduler::INTERVAL_WEEKLY,
                 'weekday_weekly' => (int)(clone $testTime)->modify('-1 Day')->format('N'),
                 'time_weekly' => $testTime,
             ]
@@ -222,7 +222,7 @@ class ExecutorTest extends TestCase
         $scheduler5 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'WEEKLY',
+                'interval' => Scheduler::INTERVAL_WEEKLY,
                 'weekday_weekly' => (int)(clone $testTime)->modify('+1 Day')->format('N'),
                 'time_weekly' => $testTime,
             ]
@@ -254,21 +254,21 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'DAILY',
+                'interval' => Scheduler::INTERVAL_DAILY,
                 'time_daily' => $testTime,
             ]
         );
         $scheduler2 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'DAILY',
+                'interval' => Scheduler::INTERVAL_DAILY,
                 'time_daily' => (clone $testTime)->modify('-1 Minute')
             ]
         );
         $scheduler3 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'DAILY',
+                'interval' => Scheduler::INTERVAL_DAILY,
                 'time_daily' => (clone $testTime)->modify('+1 Minute')
             ]
         );
@@ -294,21 +294,21 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'HOURLY',
+                'interval' => Scheduler::INTERVAL_HOURLY,
                 'minute_hourly' => (int)$testTime->format('i')
             ]
         );
         $scheduler2 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'HOURLY',
+                'interval' => Scheduler::INTERVAL_HOURLY,
                 'minute_hourly' => (int)(clone $testTime)->modify('+1 Minute')->format('i')
             ]
         );
         $scheduler3 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'HOURLY',
+                'interval' => Scheduler::INTERVAL_HOURLY,
                 'minute_hourly' => (int)(clone $testTime)->modify('-1 Minute')->format('i')
             ]
         );
@@ -424,7 +424,7 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'MONTHLY',
+                'interval' => Scheduler::INTERVAL_MONTHLY,
                 'day_monthly' => 5,
                 'time_monthly' => $testTime,
             ]
@@ -455,7 +455,7 @@ class ExecutorTest extends TestCase
         $scheduler1 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
             ]
@@ -466,7 +466,7 @@ class ExecutorTest extends TestCase
         $scheduler2 = self::getScheduler(
             $this->db,
             [
-                'interval' => 'DAILY',
+                'interval' => Scheduler::INTERVAL_DAILY,
                 'time_daily' => $testTime,
             ]
         );

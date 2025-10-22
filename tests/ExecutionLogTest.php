@@ -31,7 +31,7 @@ class ExecutionLogTest extends TestCase
         $scheduler1 = ExecutorTest::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
                 'cronjob_class' => SomeOtherCronJob::class,
@@ -59,7 +59,7 @@ class ExecutionLogTest extends TestCase
         $scheduler1 = ExecutorTest::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
             ]
@@ -70,7 +70,7 @@ class ExecutionLogTest extends TestCase
             $this->db,
             [
                 'cronjob_class' => SomeCronJobWithExceptionInExecute::class,
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
                 'logging' => 'ALWAYS_LOG'
@@ -96,7 +96,7 @@ class ExecutionLogTest extends TestCase
         $scheduler1 = ExecutorTest::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
                 'logging' => 'NO_LOGGING'
@@ -120,7 +120,7 @@ class ExecutionLogTest extends TestCase
         $scheduler1 = ExecutorTest::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
             ]
@@ -130,7 +130,7 @@ class ExecutionLogTest extends TestCase
             $this->db,
             [
                 'cronjob_class' => SomeOtherCronJob::class,
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
             ]
@@ -161,7 +161,7 @@ class ExecutionLogTest extends TestCase
         $scheduler1 = ExecutorTest::getScheduler(
             $this->db,
             [
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
             ]
@@ -171,7 +171,7 @@ class ExecutionLogTest extends TestCase
             $this->db,
             [
                 'cronjob_class' => SomeOtherCronJob::class,
-                'interval' => 'YEARLY',
+                'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
                 'logging' => 'ALWAYS_LOG'
