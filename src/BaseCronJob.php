@@ -16,14 +16,11 @@ abstract class BaseCronJob
 
     use DIContainerTrait;
 
-    /** @var string
-     * The name of the cronjob to display to a user. Static so it can be accessed by CronJobLoader
-     * without having to create an instance
-     */
-    protected static string $name = '';
+    /** @var string The name of the cronjob to display to a user. */
+    public static string $name = '';
 
     /** @var string An optional description explaining what the cronjob is doing */
-    protected static string $description = '';
+    public static string $description = '';
 
     /** @var Persistence */
     protected Persistence $persistence;
