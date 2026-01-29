@@ -138,7 +138,7 @@ class Executor
     {
         if (
             $cronJobEntity->get('day_monthly') < 1
-            || $cronJobEntity->get('day_monthly') > 28 //TODO this is simply wrong
+            || $cronJobEntity->get('day_monthly') > 31
             || !$cronJobEntity->get('time_monthly') instanceof DateTimeInterface
         ) {
             return false;
