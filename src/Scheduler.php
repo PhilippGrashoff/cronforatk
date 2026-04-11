@@ -111,7 +111,7 @@ class Scheduler extends Model
             [
                 'type' => 'string',
                 'caption' => 'Execution interval',
-                'values' => self::getIntervals(),
+                'values' => static::getIntervals(),
             ]
         );
 
