@@ -61,6 +61,9 @@ class Scheduler extends Model
         ];
     }
 
+    /** @var class-string<ExecutionLog> Allow simple overwriting of ExecutionLog reference class */
+    protected static string $executionLogClass = ExecutionLog::class;
+
     protected function init(): void
     {
         parent::init();
@@ -208,10 +211,13 @@ class Scheduler extends Model
 
         $this->hasMany(
             ExecutionLog::class,
-            ['model' => [ExecutionLog::class], 'theirField' => 'scheduler_id']
+            [
+                'model' => [static::$executionLogClass],
+                'theirField' => 'scheduler_id'
+            ]
         );
 
-        //Name and Description can be set freely. If it is not set, use values from BaseCronJob instance
+        //Name and Description can be set freely. If it is not set, use values from the BaseCronJob instance
         $this->onHook(
             Model::HOOK_BEFORE_SAVE,
             function (self $cronJobEntity) {
