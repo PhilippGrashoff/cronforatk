@@ -6,6 +6,7 @@ namespace PhilippR\Atk4\Cron\Tests;
 
 use Atk4\Data\Persistence\Sql;
 use Atk4\Data\Schema\TestCase;
+use PhilippR\Atk4\Cron\BaseCronJob;
 use PhilippR\Atk4\Cron\ExecutionLog;
 use PhilippR\Atk4\Cron\Executor;
 use PhilippR\Atk4\Cron\Scheduler;
@@ -35,7 +36,7 @@ class ExecutionLogTest extends TestCase
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
                 'cronjob_class' => SomeOtherCronJob::class,
-                'logging' => 'ALWAYS_LOG'
+                'logging' => Scheduler::LOGGING_ALWAYS_LOG
             ]
         );
 
@@ -51,7 +52,7 @@ class ExecutionLogTest extends TestCase
         );
     }
 
-    public function testExecutionSuccessIsLogged(): void
+    public function testExecutionStatusIsLogged(): void
     {
         $testTime = new \DateTime('2020-09-07');
         $testTime->setTime(3, 3);
@@ -73,18 +74,35 @@ class ExecutionLogTest extends TestCase
                 'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
-                'logging' => 'ALWAYS_LOG'
+                'logging' => Scheduler::LOGGING_ALWAYS_LOG
+            ]
+        );
+
+        $scheduler3 = ExecutorTest::getScheduler(
+            $this->db,
+            [
+                'cronjob_class' => SomeOtherCronJob::class,
+                'interval' => Scheduler::INTERVAL_YEARLY,
+                'date_yearly' => $testTime,
+                'time_yearly' => $testTime,
+                'logging' => Scheduler::LOGGING_ALWAYS_LOG
             ]
         );
 
         $executor = new Executor($this->db);
         $executor->run($testTime);
 
-        self::assertTrue(
-            ExecutorTest::getLastExecutionLog($scheduler1)->get('execution_successful')
+        self::assertSame(
+            BaseCronJob::RESULT_SUCCESS,
+            ExecutorTest::getLastExecutionLog($scheduler1)->get('execution_status')
         );
-        self::assertFalse(
-            ExecutorTest::getLastExecutionLog($scheduler2)->get('execution_successful')
+        self::assertSame(
+            BaseCronJob::RESULT_ERROR,
+            ExecutorTest::getLastExecutionLog($scheduler2)->get('execution_status')
+        );
+        self::assertSame(
+            BaseCronJob::RESULT_PARTLY_SUCCESSFUL,
+            ExecutorTest::getLastExecutionLog($scheduler3)->get('execution_status')
         );
     }
 
@@ -174,7 +192,7 @@ class ExecutionLogTest extends TestCase
                 'interval' => Scheduler::INTERVAL_YEARLY,
                 'date_yearly' => $testTime,
                 'time_yearly' => $testTime,
-                'logging' => 'ALWAYS_LOG'
+                'logging' => Scheduler::LOGGING_ALWAYS_LOG
             ]
         );
 

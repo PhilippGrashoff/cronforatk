@@ -5,7 +5,6 @@ namespace PhilippR\Atk4\Cron;
 use Atk4\Core\DiContainerTrait;
 use Atk4\Data\Persistence;
 use ReflectionClass;
-use stdClass;
 
 /**
  * This class is meant as a Base to extend from for all Cronjobs.
@@ -25,8 +24,26 @@ abstract class BaseCronJob
     /** @var Persistence */
     protected Persistence $persistence;
 
-    /** @var array<int, string|stdClass> In here, the cronjob can log what it did on execution */
+    /** @var String[] In here, the cronjob can log what it did on execution */
     protected array $executionLog = [];
+
+    /** @var string stores the result of the cronjob execution so it can be put into ExecutionLog */
+    public string $executionResult = self::RESULT_SUCCESS;
+
+    public const string RESULT_SUCCESS = 'SUCCESS';
+    public const string RESULT_PARTLY_SUCCESSFUL = 'PARTLY_SUCCESS';
+    public const string RESULT_FAILURE = 'FAILURE';
+    public const string RESULT_ERROR = 'ERROR';
+
+    public static function getResultStatuses(): array
+    {
+        return [
+            self::RESULT_SUCCESS => 'Successful',
+            self::RESULT_PARTLY_SUCCESSFUL => 'Partly successful',
+            self::RESULT_FAILURE => 'Failure',
+            self::RESULT_ERROR => 'Error'
+        ];
+    }
 
     /**
      * @param Persistence $persistence
@@ -64,7 +81,7 @@ abstract class BaseCronJob
     }
 
     /**
-     * @return stdClass[]|string[]
+     * @return string[]
      */
     public function getExecutionLog(): array
     {

@@ -15,5 +15,6 @@ class SomeOtherCronJob extends BaseCronJob
     public function execute(): void
     {
         sleep(1);
+        $this->executionResult = self::RESULT_PARTLY_SUCCESSFUL;
     }
 }

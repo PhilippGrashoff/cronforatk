@@ -231,12 +231,12 @@ class Executor
             $cronJobClass = $entity->get('cronjob_class');
             $cronJobInstance = new $cronJobClass($this->persistence, $entity->get('defaults') ?? []);
             $cronJobInstance->execute();
-            $executionLog->set('execution_successful', true);
+            $executionLog->set('execution_status', $cronJobInstance->executionResult);
             $executionLog->set('execution_output', $cronJobInstance->getExecutionLog());
             $this->reportSuccess($executionLog);
         } //catch any errors as more than one cron could be executed per minutely run
         catch (Throwable $e) {
-            $executionLog->set('execution_successful', false);
+            $executionLog->set('execution_status', BaseCronJob::RESULT_ERROR);
             $executionLog->set('execution_output', [$e->getMessage()]);
             $this->reportFailure($executionLog, $e);
         }

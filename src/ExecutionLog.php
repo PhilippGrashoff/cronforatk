@@ -30,10 +30,11 @@ class ExecutionLog extends Model
         );
 
         $this->addField(
-            'execution_successful',
+            'execution_status',
             [
-                'type' => 'boolean',
-                'system' => true
+                'type' => 'string',
+                'system' => true,
+                'values' => BaseCronJob::getResultStatuses()
             ]
         );
 
