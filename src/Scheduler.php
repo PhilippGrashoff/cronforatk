@@ -210,7 +210,7 @@ class Scheduler extends Model
         );
 
         $this->hasMany(
-            ExecutionLog::class,
+            static::$executionLogClass,
             [
                 'model' => [static::$executionLogClass],
                 'theirField' => 'scheduler_id'
